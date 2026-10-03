@@ -12,7 +12,7 @@ Estimated effort: ~7.2 h across 6 tasks
 ## Tasks
 
 - [x] [Task 1 — Repo skeleton & tooling](task_1_summary.md) · 60m
-- [ ] [Task 2 — Local compose stack + migrations](task_2_summary.md) · 90m
+- [x] [Task 2 — Local compose stack + migrations](task_2_summary.md) · 90m
 - [ ] [Task 3 — Provision Oracle A1 VM](task_3_summary.md) · 90m
 - [ ] [Task 4 — Public HTTPS + auth at the proxy](task_4_summary.md) · 75m
 - [ ] [Task 5 — Vault deploy key + sparse clone](task_5_summary.md) · 60m
@@ -33,7 +33,7 @@ Estimated effort: ~7.2 h across 6 tasks
 ## ADRs touched
 
 - ADR-0007 Oracle over AWS — accepted
-- ADR-0012 raw SQL over ORM — proposed, resolve before Task 2
+- ADR-0012 raw SQL over ORM — accepted
 - ADR-0013 Caddy + DuckDNS — proposed, resolve before Task 4
 - ADR-0014 auth at proxy — proposed, resolve before Task 4
 

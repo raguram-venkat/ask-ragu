@@ -1,6 +1,6 @@
 # ADR-0012: psycopg 3 + raw SQL over an ORM
 
-Status: proposed
+Status: accepted
 Date: 2026-09-28
 Sprint: sprint-0 (planning)
 

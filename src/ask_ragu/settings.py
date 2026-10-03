@@ -2,9 +2,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_ignore_empty=True)
+    # Real env vars win over .env; extra="ignore" because .env also holds keys for other services.
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
-    database_url: str = "postgresql://askragu:askragu@localhost:5432/askragu"
+    database_url: str
 
 
 settings = Settings()

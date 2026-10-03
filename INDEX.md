@@ -2,8 +2,8 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier.
 
-Current status: planning done — next up is Sprint 1, Task 1
-Last updated: 2026-09-28
+Current status: Sprint 1 in progress — next up is Task 3 (Oracle A1 VM)
+Last updated: 2026-10-03
 
 ## 30-minute reading order
 
@@ -17,7 +17,7 @@ Last updated: 2026-09-28
 
 | Sprint | Phase (SPEC §16) | Status | One-liner |
 |---|---|---|---|
-| [sprint-1](sprints/sprint-1/sprint.md) | Foundations & Infra | planned | Compose stack on laptop and Oracle A1, HTTPS + auth, vault cloned via deploy key |
+| [sprint-1](sprints/sprint-1/sprint.md) | Foundations & Infra | in progress | Compose stack on laptop and Oracle A1, HTTPS + auth, vault cloned via deploy key |
 | [sprint-2](sprints/sprint-2/sprint.md) | Webhook & Incremental Indexing | planned | Push → HMAC-verified 202 → background git-diff sync → parse/chunk/embed/upsert |
 | [sprint-3](sprints/sprint-3/sprint.md) | Graph Layer | planned | Obsidian-style link resolution, tag/MOC hubs, bounded 2-hop expansion |
 | [sprint-4](sprints/sprint-4/sprint.md) | Retrieval | planned | Lexical + vector → RRF → graph expansion → provenance context, proven by an ablation table |
@@ -39,7 +39,7 @@ Last updated: 2026-09-28
 | [0009](adr/0009-exclude-training-free-tiers.md) | Exclude free tiers that train on prompts | proposed |
 | [0010](adr/0010-moc-hubs-over-folder-siblings.md) | MOC/tag hubs over folder-sibling edges | proposed |
 | [0011](adr/0011-index-is-disposable.md) | Index is derived state: rebuild, don't back up | proposed |
-| [0012](adr/0012-raw-sql-over-orm.md) | psycopg 3 + raw SQL over an ORM | proposed |
+| [0012](adr/0012-raw-sql-over-orm.md) | psycopg 3 + raw SQL over an ORM | accepted |
 | [0013](adr/0013-caddy-duckdns-tls.md) | Caddy + DuckDNS for free TLS | proposed |
 | [0014](adr/0014-auth-at-proxy-for-public-demo.md) | Basic auth at the proxy for the public demo | proposed |
 | 0015 | Graph traversal implementation (to be written in Sprint 3, Task 3) | — |
