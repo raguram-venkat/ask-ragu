@@ -4,14 +4,14 @@ Goal: The same Docker Compose stack (Postgres+pgvector, FastAPI) runs on the lap
 
 Spec reference: SPEC.md §6, §11, §15, §16 Phase 1 · D-004
 
-Status: planned
-Started: 
+Status: in progress
+Started: 2026-09-29
 Closed: 
 Estimated effort: ~7.2 h across 6 tasks
 
 ## Tasks
 
-- [ ] [Task 1 — Repo skeleton & tooling](task_1_summary.md) · 60m
+- [x] [Task 1 — Repo skeleton & tooling](task_1_summary.md) · 60m
 - [ ] [Task 2 — Local compose stack + migrations](task_2_summary.md) · 90m
 - [ ] [Task 3 — Provision Oracle A1 VM](task_3_summary.md) · 90m
 - [ ] [Task 4 — Public HTTPS + auth at the proxy](task_4_summary.md) · 75m
