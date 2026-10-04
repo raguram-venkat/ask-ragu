@@ -1,6 +1,6 @@
 # Task 4 — Heading-aware chunker + fixture vault
 
-Status: todo
+Status: done
 Est: 90m
 Spec: SPEC.md §8, §14
 
@@ -36,12 +36,23 @@ Filled in while working
 
 Files touched:
 
-- 
+- `src/ask_ragu/index/chunk.py` — `chunk_note(title, body) -> list[Chunk(heading_path, content)]`; list order = `chunk_order`
+- `tests/test_chunk.py` — 9 cases: stub, heading path, heading-only parent, heading in code, preamble, merge + shared path, merge cap, paragraph split + overlap, heading-less giant line
+- `src/ask_ragu/settings.py`, `.env.example` — `CHUNK_MAX_CHARS`, `CHUNK_MERGE_BELOW_CHARS`, `CHUNK_OVERLAP_CHARS`, `STUB_MIN_CHARS`
 
 Decisions made here:
 
-- 
+- No markdown-it-py: the vault only has `##`/`###` headings (Task 1), so all the chunker needs is "is this line inside a code fence?" — it reuses the parser's `FENCE` regex.
+- Merge rule (one condition): a section joins the previous chunk if either is under `CHUNK_MERGE_BELOW_CHARS` and the result fits `CHUNK_MAX_CHARS`. The merged chunk's `heading_path` is the shared prefix; headings not in the path stay in the text (`### A1`), so nothing is lost.
+- Merge threshold 200, measured on the real vault (chunks / median / under 200 chars): 0 → 2,555 / 385 / 702 · 80 → 2,219 / 463 / 333 · **200 → 1,992 / 530 / 78** · 400 → 1,565 / 749 / 42. 200 removes almost all fragments; 400 starts mixing unrelated sections.
+- Overlap: when a section is split, its last paragraph is repeated at the start of the next window if it's ≤ `CHUNK_OVERLAP_CHARS` (300). Paragraph-level, not a character slice, so no chunk starts mid-word.
+- Chunk content excludes its own heading line when `heading_path` already carries it; Task 5 embeds `title + heading_path + content` (title is already the first path element).
+- Stub notes (owner confirmed): rows in `notes`, `note_links`, `note_tags`; **no rows in `chunks`** (`embedding` is NOT NULL, so a chunk without a vector can't exist). So a stub is neither vector- nor keyword-searchable; it can only enter an answer via graph expansion from a linked note. Task 6 must upsert the note even when `chunk_note` returns `[]`. Alternative kept in mind: one unsplit, embedded chunk per stub, if stubs ever need to be findable (0 stubs today).
+- Worked examples of each case are a comment at the end of `chunk.py`.
+- The synthetic fixture vault is deferred (owner agreed) → BACKLOG. Unit tests use inline strings.
 
 Gotchas:
 
-- 
+- Real vault with `.env` values: 776 notes → 1,992 chunks, median 530, max exactly 1,500, 0 empty. heading_path depth: 285 title only, 854 one heading, 853 two.
+- Stub filter drops 0 notes today: the one note under 100 chars in Task 1 has since grown (shortest body is now 131).
+- A paragraph longer than the max (a long code block, say) is cut per line and rejoined with blank lines: harmless for embeddings, slightly changes code layout in that chunk. Marked `ponytail:` in code.

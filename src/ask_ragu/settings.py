@@ -13,5 +13,11 @@ class Settings(BaseSettings):
     vault_excluded_dirs: set[str]
     vault_stripped_fences: set[str]
 
+    # Chunker; see .env.example.
+    chunk_max_chars: int
+    chunk_merge_below_chars: int
+    chunk_overlap_chars: int
+    stub_min_chars: int
+
 
 settings = Settings()

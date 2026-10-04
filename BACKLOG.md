@@ -21,3 +21,4 @@ When scheduled: move it into a sprint task and strike it through here with a poi
 - [idea] Terraform (OCI provider) for VCN + instance — rebuilds become one command instead of console clicks; strong interview material — (found: sprint-1)
 - ~~[debt] Resize A1 to 2 OCPU / 12 GB if it was acquired at 1/6 — needed before Sprint 5's local model — (found: sprint-1)~~ → sprint-1/task_7 (phase 2, D-009)
 - [idea] Revisit ADR-0010 before Sprint 3: in the real vault every note has exactly one tag (= its `domain`), so tag hubs are disjoint domain clusters of 5–42 notes, not cross-cutting labels — (found: sprint-2/task_1)
+- [debt] Synthetic fixture vault (~15 notes: aliases, same name in two folders, MOC, template, callouts, Markdown image, no-frontmatter note, dangling links, links in code) for whole-pipeline tests — deferred from sprint-2/task_4; parser/chunker use inline-string unit tests — (found: sprint-2/task_4)
