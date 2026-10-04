@@ -7,5 +7,11 @@ class Settings(BaseSettings):
 
     database_url: str
 
+    # Vault structure rules (D-006); see .env.example.
+    vault_folder_types: dict[str, str]
+    vault_default_note_type: str
+    vault_excluded_dirs: set[str]
+    vault_stripped_fences: set[str]
+
 
 settings = Settings()
