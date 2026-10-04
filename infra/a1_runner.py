@@ -1,8 +1,9 @@
 """A1 capacity retry runner (sprint-1/task_7, D-008, D-009). Runs on the E2.1.Micro.
 
-Loop: no A1 → launch 2/12, fall back to 1/6 · A1 at 1/6 → resize to 2/12 inside RESIZE_HOURS ·
-A1 running at 2/12 → exit. Emails (OCI Notifications topic) only when an A1 is acquired or
-resized, or when the runner stops on an error; capacity misses only go to the log.
+Loop: no A1 → launch, alternating 2/12 and 1/6 per round ·
+A1 at 1/6 → resize to 2/12 inside RESIZE_HOURS · A1 running at 2/12 → exit.
+Emails (OCI Notifications topic) only when an A1 is acquired or resized, or when the runner
+stops on an error; capacity misses only go to the log.
 
 Auth is the Micro's instance principal (no API key on disk). Compartment, availability domain,
 subnet and SSH key are read from the Micro itself, so the A1 lands next to it with the same key.
@@ -22,7 +23,7 @@ from datetime import datetime
 from pathlib import Path
 
 SHAPE = "VM.Standard.A1.Flex"
-SIZES = [(2, 12), (1, 6)]  # D-009: ask big first, fall back to the gap-filler
+SIZES = [(2, 12), (1, 6)]  # D-009: big one first, then the gap-filler; alternated per round
 CLOUD_INIT = Path(__file__).with_name("cloud-init.sh")
 GONE = {"TERMINATED", "TERMINATING"}
 
@@ -146,6 +147,7 @@ def main() -> int:
 
     announced: set[tuple[str, float]] = set()
     pause = 0  # extra back-off after 429s
+    attempt = 0
     while True:
         try:
             a1s = [
@@ -174,15 +176,17 @@ def main() -> int:
             if action == "fatal":
                 return fatal("more than one A1 exists", ", ".join(i.id for i in a1s))
             if action == "launch":
-                for ocpus, mem in SIZES:
-                    try:
-                        launch(ocpus, mem)
-                        log(f"launch accepted at {ocpus}/{mem}")
-                        break
-                    except oci.exceptions.ServiceError as e:
-                        if classify(e.status, e.code, e.message) != "capacity":
-                            raise
-                        log(f"out of capacity at {ocpus}/{mem}")
+                # One launch per round, alternating sizes: a second launch in the same
+                # round is reliably 429 TooManyRequests.
+                ocpus, mem = SIZES[attempt % len(SIZES)]
+                attempt += 1
+                try:
+                    launch(ocpus, mem)
+                    log(f"launch accepted at {ocpus}/{mem}")
+                except oci.exceptions.ServiceError as e:
+                    if classify(e.status, e.code, e.message) != "capacity":
+                        raise
+                    log(f"out of capacity at {ocpus}/{mem}")
             elif action == "resize":
                 compute.update_instance(
                     a1.id,
