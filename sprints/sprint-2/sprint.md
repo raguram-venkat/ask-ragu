@@ -5,13 +5,13 @@ Goal: A push to the vault repo is HMAC-verified, acknowledged within GitHub's 10
 Spec reference: SPEC.md §7, §8, §12, §16 Phase 2 · D-001, D-003, D-006, D-008
 
 Status: active — starts 2026-10-04, developed locally (D-008)
-Started: 
+Started: 2026-10-04
 Closed: 
 Estimated effort: ~11.2 h across 9 tasks
 
 ## Tasks
 
-- [ ] [Task 1 — Vault profiling (data before design)](task_1_summary.md) · 60m
+- [x] [Task 1 — Vault profiling (data before design)](task_1_summary.md) · 60m
 - [ ] [Task 2 — Schema v1](task_2_summary.md) · 60m
 - [ ] [Task 3 — Note parser & cleaning](task_3_summary.md) · 90m
 - [ ] [Task 4 — Heading-aware chunker + fixture vault](task_4_summary.md) · 90m

@@ -21,6 +21,14 @@ Watch out for:
 
 Done when: Applies on a fresh DB, no-op on re-run; deleting a note cascades to its chunks, links, and tags.
 
+From Task 1 profiling (real vault, `scripts/profile_vault.py`):
+
+- Title = filename stem: the vault has no H1 headings at all (only H2/H3).
+- Frontmatter keys seen: `type`, `created`, `status`, `domain`, `tags` on almost every note; `moc-kind`, `concept-kind`, `source-type`, `author`, `purpose` on some. No `aliases` key anywhere. Store it all in `frontmatter jsonb`; no extra columns needed.
+- 19 notes have no frontmatter (all in one Concepts subfolder), so `note_type` must come from the folder (as D-006 says), not from `type:`. Where both exist they always agree.
+- `04 Fleeting/` currently holds no notes; keep `fleeting` as a valid type anyway.
+- 19 filenames repeat across folders, so `path` is unique but `title` is not: no unique index on title.
+
 ---
 
 Filled in while working

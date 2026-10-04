@@ -20,3 +20,4 @@ When scheduled: move it into a sprint task and strike it through here with a poi
 - [idea] CD: GitHub Actions arm64 image build → GHCR → VM pulls — removes building on the VM — (found: sprint-0)
 - [idea] Terraform (OCI provider) for VCN + instance — rebuilds become one command instead of console clicks; strong interview material — (found: sprint-1)
 - ~~[debt] Resize A1 to 2 OCPU / 12 GB if it was acquired at 1/6 — needed before Sprint 5's local model — (found: sprint-1)~~ → sprint-1/task_7 (phase 2, D-009)
+- [idea] Revisit ADR-0010 before Sprint 3: in the real vault every note has exactly one tag (= its `domain`), so tag hubs are disjoint domain clusters of 5–42 notes, not cross-cutting labels — (found: sprint-2/task_1)
