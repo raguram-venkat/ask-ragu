@@ -15,7 +15,7 @@ def conn():
     except (psycopg.OperationalError, TypeError):
         pytest.skip("no Postgres at TEST_DATABASE_URL")
     c.execute("CREATE SCHEMA IF NOT EXISTS migrate_test")
-    c.execute("SET search_path TO migrate_test")
+    c.execute("SET search_path TO migrate_test, public")  # public: where the vector type lives
     yield c
     c.execute("DROP SCHEMA migrate_test CASCADE")
     c.close()
@@ -37,3 +37,30 @@ def test_failed_migration_rolls_back(conn, tmp_path):
         db.migrate(conn, tmp_path)
     assert conn.execute("SELECT to_regclass('t')").fetchone() == (None,)
     assert conn.execute("SELECT count(*) FROM schema_migrations").fetchone() == (0,)
+
+
+def test_schema_v1_applies_and_cascades(conn):
+    assert "0002_schema_v1" in db.migrate(conn)
+    assert db.migrate(conn) == []
+
+    (note,) = conn.execute(
+        "INSERT INTO notes (path, title, note_type, content_hash)"
+        " VALUES ('02 Concepts/A.md', 'A', 'concept', 'h') RETURNING id"
+    ).fetchone()
+    conn.execute(
+        "INSERT INTO chunks (note_id, chunk_order, heading_path, content, embedding)"
+        " VALUES (%s, 0, 'A > Intro', 'graphs are fun', %s)",
+        (note, "[" + ",".join(["0"] * 384) + "]"),
+    )
+    conn.execute(
+        "INSERT INTO note_links (source_note_id, raw_target, link_kind) VALUES (%s, 'B', 'link')",
+        (note,),
+    )
+    conn.execute("INSERT INTO note_tags (note_id, tag) VALUES (%s, 'cs/graphs')", (note,))
+    assert conn.execute("SELECT tsv @@ to_tsquery('english', 'graph') FROM chunks").fetchone() == (
+        True,
+    )
+
+    conn.execute("DELETE FROM notes WHERE id = %s", (note,))
+    for table in ("chunks", "note_links", "note_tags"):
+        assert conn.execute(f"SELECT count(*) FROM {table}").fetchone() == (0,), table

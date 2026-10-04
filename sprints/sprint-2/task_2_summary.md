@@ -1,6 +1,6 @@
 # Task 2 — Schema v1
 
-Status: todo
+Status: done
 Est: 60m
 Spec: SPEC.md §7 · D-002, D-006
 
@@ -35,12 +35,20 @@ Filled in while working
 
 Files touched:
 
-- 
+- `migrations/0002_schema_v1.sql` — notes, chunks, note_links, note_tags, index_state
+- `tests/test_migrate.py` — fixture search path now includes `public` (where the `vector` type lives); new test: applies once, tsv matches, delete cascades
 
 Decisions made here:
 
-- 
+- `note_type` is `text` + `CHECK`, not a Postgres `ENUM`: adding a value to an enum needs `ALTER TYPE` and can't be removed later; a CHECK is just replaced.
+- `tsv` covers `heading_path` (weight A) and `content` (weight B), so a query word that appears in a heading or title ranks higher. Generated `STORED`, so it can't drift from the content.
+- `embedding` is `NOT NULL`: the pipeline embeds before upserting (SPEC §8 steps 5–6), so a chunk without a vector is a bug.
+- `note_links.target_note_id` uses `ON DELETE SET NULL`: deleting a target note turns links to it into dangling links (still recorded) rather than deleting the other note's links. Primary key `(source, raw_target, link_kind)`, so the parser deduplicates repeated links in a note.
+- `link_kind` is `link` (`[[X]]`) or `embed` (`![[X]]`, a note embed); image embeds are never stored.
+- `index_state` has exactly one row, enforced by `CHECK (singleton)` on a boolean primary key. The indexer inserts it on the first full index (Task 6).
+- No GIN/HNSW indexes yet: with ~3k chunks a sequential scan takes milliseconds. Revisit with Sprint 4 latency numbers.
 
 Gotchas:
 
-- 
+- `title` is not unique (19 duplicate names in the real vault), so no unique index on it.
+- Tests run in a throwaway `migrate_test` schema; `CREATE EXTENSION IF NOT EXISTS vector` is a no-op there because extensions are per database, installed in `public`.
