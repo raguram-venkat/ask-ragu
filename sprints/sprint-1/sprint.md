@@ -4,19 +4,20 @@ Goal: The same Docker Compose stack (Postgres+pgvector, FastAPI) runs on the lap
 
 Spec reference: SPEC.md §6, §11, §15, §16 Phase 1 · D-004
 
-Status: in progress
+Status: parked — Tasks 4–6 wait for an A1 instance (D-008)
 Started: 2026-09-29
 Closed: 
-Estimated effort: ~7.2 h across 6 tasks
+Estimated effort: ~8.4 h across 7 tasks
 
 ## Tasks
 
 - [x] [Task 1 — Repo skeleton & tooling](task_1_summary.md) · 60m
 - [x] [Task 2 — Local compose stack + migrations](task_2_summary.md) · 90m
-- [ ] [Task 3 — Provision Oracle A1 VM](task_3_summary.md) · 90m
-- [ ] [Task 4 — Public HTTPS + auth at the proxy](task_4_summary.md) · 75m
-- [ ] [Task 5 — Vault deploy key + sparse clone](task_5_summary.md) · 60m
-- [ ] [Task 6 — Deploy workflow](task_6_summary.md) · 60m
+- [ ] [Task 3 — Provision Oracle A1 VM](task_3_summary.md) · 90m — blocked: no A1 capacity; networking done
+- [ ] [Task 4 — Public HTTPS + auth at the proxy](task_4_summary.md) · 75m — deferred until A1 (D-008)
+- [ ] [Task 5 — Vault deploy key + sparse clone](task_5_summary.md) · 60m — deferred until A1 (D-008)
+- [ ] [Task 6 — Deploy workflow](task_6_summary.md) · 60m — deferred until A1 (D-008)
+- [ ] [Task 7 — A1 capacity retry runner on the Micro](task_7_summary.md) · 75m — added by D-008
 
 ## Definition of Done
 
@@ -28,7 +29,7 @@ Estimated effort: ~7.2 h across 6 tasks
 
 ## Deviations from plan
 
-- (none yet)
+- D-008 — deploy work decoupled; A1 retry runner added as Task 7
 
 ## ADRs touched
 

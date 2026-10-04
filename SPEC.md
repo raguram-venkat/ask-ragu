@@ -112,7 +112,7 @@ Dangling wikilinks (target note doesn't exist) are recorded with a null `target_
 
 ## 11. Hosting & Infrastructure
 
-- Host: Oracle Cloud Always Free, Ampere A1 ARM instance (2 OCPU / 12GB RAM as of the 2026 allocation, not time-limited). Fallback if signup/capacity fails: GCP e2-micro (always-free, 1GB RAM — workable but tighter).
+- Host: Oracle Cloud Always Free, Ampere A1 ARM instance (2 OCPU / 12GB RAM as of the 2026 allocation, not time-limited). Fallback if signup/capacity fails: GCP e2-micro (always-free, 1GB RAM — workable but tighter). Until A1 capacity is available, a temporary E2.1.Micro (Always Free) in the same VCN runs only an A1 retry loop and is terminated once the A1 exists [D-008]. Zero cost is enforced by a tenancy quota policy (A1 ≤ 2 OCPU / 12 GB, no other compute shapes, block storage ≤ 200 GB); budget alerts are only a second line of defence. The A1 may first be acquired at 1 OCPU / 6 GB and resized to 2/12 later [D-009].
 - Repo access: private repo, read-only SSH deploy key, mounted as a Docker secret — never baked into the image or committed to any compose file.
 - Webhook security: GitHub's `X-Hub-Signature-256` HMAC verified before any pull runs; payload contents never touch a shell string directly.
 - Only the reverse proxy is publicly exposed; Postgres and the local-model container are internal-network-only.
@@ -158,7 +158,7 @@ Each row is expanded as an ADR in `adr/` (indexed in INDEX.md).
 
 ## 16. Suggested Phasing
 
-For sprint planning, not a fixed schedule — slice further as needed.
+For sprint planning, not a fixed schedule — slice further as needed. Host-dependent work (Phase 1's HTTPS, deploy key, deploy) runs whenever A1 capacity is available; later phases develop locally against Docker Compose and deploy afterwards [D-008].
 
 1. Infra: Oracle host provisioned, Docker Compose skeleton, Postgres+pgvector running, deploy key working, manual clone verified.
 2. Webhook + incremental indexing: signature verification, git-diff-based pipeline, frontmatter/chunk parsing, embeddings, upsert; eval question set written here [D-003].

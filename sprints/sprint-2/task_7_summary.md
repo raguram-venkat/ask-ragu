@@ -19,8 +19,9 @@ Watch out for:
 - Compute the HMAC on raw bytes before any JSON parsing.
 - Payload data never reaches a shell; the sync reads git itself.
 - A crash drops the in-flight job — fine, Task 8's startup reconciliation catches up.
+- No public URL yet (D-008): test with requests you sign yourself using the same secret. GitHub can't reach the laptop, and that's fine.
 
-Done when: GitHub's Recent Deliveries shows 202s; a curl with a wrong signature gets 401; redelivery is a no-op.
+Done when: a correctly signed local request gets 202, a wrong signature gets 401, and a repeated delivery id is a no-op. GitHub's Recent Deliveries check happens once the A1 is live (D-008).
 
 ---
 

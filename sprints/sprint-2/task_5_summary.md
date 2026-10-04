@@ -15,12 +15,12 @@ Read first:
 
 Watch out for:
 
-- Confirm onnxruntime installs on aarch64 in your image before committing (fallback: sentence-transformers on CPU, heavier).
+- Confirm onnxruntime installs on aarch64 in your image before committing (fallback: sentence-transformers on CPU, heavier). No A1 yet (D-008): build and run the image with `--platform linux/arm64` under QEMU emulation on the laptop to catch arm64 install problems now. It's slow, so don't benchmark under emulation.
 - Model downloads on first use: bake into the image or cache in a volume, or every restart re-downloads.
 - CPU-bound work inside an async route blocks every request — thread pool only.
 - bge expects a query instruction prefix on the query side; check whether fastembed's query embedding applies it.
 
-Done when: VM throughput recorded here; full-vault embed time estimated.
+Done when: the arm64 image passes an emulated smoke test; laptop throughput recorded; VM throughput added once the A1 exists.
 
 ---
 

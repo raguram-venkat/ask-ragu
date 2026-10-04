@@ -18,3 +18,5 @@ When scheduled: move it into a sprint task and strike it through here with a poi
 - [idea] Vault health page in the UI (dangling links, orphans, hubs) — reuses Sprint 3's health report — (found: sprint-0)
 - [idea] Question decomposition for multi-hop questions — only if eval shows 2-hop questions failing after graph expansion — (found: sprint-0)
 - [idea] CD: GitHub Actions arm64 image build → GHCR → VM pulls — removes building on the VM — (found: sprint-0)
+- [idea] Terraform (OCI provider) for VCN + instance — rebuilds become one command instead of console clicks; strong interview material — (found: sprint-1)
+- ~~[debt] Resize A1 to 2 OCPU / 12 GB if it was acquired at 1/6 — needed before Sprint 5's local model — (found: sprint-1)~~ → sprint-1/task_7 (phase 2, D-009)

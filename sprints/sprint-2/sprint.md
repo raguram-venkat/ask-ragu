@@ -2,9 +2,9 @@
 
 Goal: A push to the vault repo is HMAC-verified, acknowledged within GitHub's 10 s window, and incrementally indexed (parse → chunk → embed → upsert) in a background task.
 
-Spec reference: SPEC.md §7, §8, §12, §16 Phase 2 · D-001, D-003, D-006
+Spec reference: SPEC.md §7, §8, §12, §16 Phase 2 · D-001, D-003, D-006, D-008
 
-Status: planned
+Status: active — starts 2026-10-04, developed locally (D-008)
 Started: 
 Closed: 
 Estimated effort: ~11.2 h across 9 tasks
@@ -23,15 +23,15 @@ Estimated effort: ~11.2 h across 9 tasks
 
 ## Definition of Done
 
-- Editing, renaming, and deleting a note then pushing is reflected in Postgres within ~1 minute; a rename keeps the note's id
-- Wrong signature → 401; redelivered webhook → no-op; ping → 200; force-push → full reindex instead of a crash
+- Editing, renaming, and deleting a note in a local clone, then syncing, is reflected in Postgres; a rename keeps the note's id. The live GitHub → VM check waits for Sprint 1 Tasks 4–6 (D-008)
+- Locally signed requests: wrong signature → 401, repeated delivery id → no-op, ping → 200; force-push → full reindex instead of a crash
 - Fixture-vault tests cover every exclusion, cleaning, link-syntax, and chunking rule
 - Incremental sync ends in exactly the same DB state as a full index
 - Eval set v0 (private) has ≥ 15 questions with gold notes
 
 ## Deviations from plan
 
-- (none yet)
+- D-008 — developed locally; live webhook delivery verified once the A1 is up
 
 ## ADRs touched
 

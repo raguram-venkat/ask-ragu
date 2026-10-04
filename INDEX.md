@@ -2,7 +2,7 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier.
 
-Current status: Sprint 1 in progress — next up is Task 3 (Oracle A1 VM)
+Current status: Sprint 2 is the active sprint (starts 2026-10-04, local-first). Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) runs in parallel; Tasks 4–6 are deferred until the A1 exists — don't start them (D-008).
 Last updated: 2026-10-03
 
 ## 30-minute reading order
@@ -17,8 +17,8 @@ Last updated: 2026-10-03
 
 | Sprint | Phase (SPEC §16) | Status | One-liner |
 |---|---|---|---|
-| [sprint-1](sprints/sprint-1/sprint.md) | Foundations & Infra | in progress | Compose stack on laptop and Oracle A1, HTTPS + auth, vault cloned via deploy key |
-| [sprint-2](sprints/sprint-2/sprint.md) | Webhook & Incremental Indexing | planned | Push → HMAC-verified 202 → background git-diff sync → parse/chunk/embed/upsert |
+| [sprint-1](sprints/sprint-1/sprint.md) | Foundations & Infra | parked — T4–T6 wait for A1 (D-008) | Compose stack on laptop and Oracle A1, HTTPS + auth, vault cloned via deploy key |
+| [sprint-2](sprints/sprint-2/sprint.md) | Webhook & Incremental Indexing | active (local-first) | Push → HMAC-verified 202 → background git-diff sync → parse/chunk/embed/upsert |
 | [sprint-3](sprints/sprint-3/sprint.md) | Graph Layer | planned | Obsidian-style link resolution, tag/MOC hubs, bounded 2-hop expansion |
 | [sprint-4](sprints/sprint-4/sprint.md) | Retrieval | planned | Lexical + vector → RRF → graph expansion → provenance context, proven by an ablation table |
 | [sprint-5](sprints/sprint-5/sprint.md) | Generation, Chain & UI | planned | Config-ordered provider chain (hosted → local llama.cpp), validated citations, minimal UI |
@@ -50,9 +50,9 @@ Proposed = came out of planning research; review and accept (or supersede) befor
 
 Full log in [DEVIATIONS.md](DEVIATIONS.md). Most recent 3:
 
+- D-009 Quota policy enforces the free tier; A1 retry asks 2/12 first, falls back to 1/6, resizes later
+- D-008 Deploy work waits for A1 capacity; Sprint 2+ develop locally; Micro runs an A1 retry loop
 - D-007 Graph expansion bounded per hop, not just in total
-- D-006 Vault-specific exclusions and note_type priors
-- D-005 Free tiers that train on prompts disabled by default
 
 ## Other root files
 
