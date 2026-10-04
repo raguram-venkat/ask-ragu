@@ -1,0 +1,18 @@
+[Unit]
+Description=ask-ragu A1 capacity retry runner (sprint-1/task_7)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/a1-runner.env
+Environment=PYTHONUNBUFFERED=1 TZ=Asia/Kolkata
+ExecStart=/opt/a1-runner/venv/bin/python /opt/a1-runner/a1_runner.py
+# Throwaway unprivileged user; the instance principal comes from the metadata endpoint, not a file.
+DynamicUser=yes
+Restart=on-failure
+RestartSec=60
+# 2 = fatal (quota, auth, bad config): stay stopped, the email already told you why.
+RestartPreventExitStatus=2
+
+[Install]
+WantedBy=multi-user.target
