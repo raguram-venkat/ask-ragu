@@ -19,5 +19,14 @@ class Settings(BaseSettings):
     chunk_overlap_chars: int
     stub_min_chars: int
 
+    # Embeddings; see .env.example.
+    embedding_model: str
+    embedding_model_file: str
+    embedding_pooling: str
+    embedding_dim: int
+    embedding_batch_size: int
+    embedding_cache_dir: str
+    embedding_query_prefix: str
+
 
 settings = Settings()

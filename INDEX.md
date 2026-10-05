@@ -43,6 +43,7 @@ Last updated: 2026-10-03
 | [0013](adr/0013-caddy-duckdns-tls.md) | Caddy + DuckDNS for free TLS | proposed |
 | [0014](adr/0014-auth-at-proxy-for-public-demo.md) | Basic auth at the proxy for the public demo | proposed |
 | 0015 | Graph traversal implementation (to be written in Sprint 3, Task 3) | — |
+| [0016](adr/0016-int8-bge-small-batch-1.md) | int8 bge-small, embedded one chunk at a time | accepted |
 
 Proposed = came out of planning research; review and accept (or supersede) before the dependent task starts.
 
