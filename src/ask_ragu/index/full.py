@@ -61,7 +61,7 @@ def content_hash(note: ParsedNote) -> str:
     s = settings
     key = [note.title, note.body, s.chunk_max_chars, s.chunk_merge_below_chars,
            s.chunk_overlap_chars, s.stub_min_chars, s.embedding_model, s.embedding_model_file,
-           s.embedding_pooling]  # fmt: skip
+           s.embedding_pooling, sorted(s.chunk_metadata_headings)]  # fmt: skip
     return hashlib.sha256(json.dumps(key).encode()).hexdigest()
 
 

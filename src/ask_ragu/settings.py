@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     chunk_merge_below_chars: int
     chunk_overlap_chars: int
     stub_min_chars: int
+    chunk_metadata_headings: list[str]
 
     # Embeddings; see .env.example.
     embedding_model: str

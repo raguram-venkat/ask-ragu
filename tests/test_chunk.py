@@ -14,6 +14,7 @@ def chunk_rules(monkeypatch):
         "chunk_merge_below_chars": 30,
         "chunk_overlap_chars": 40,
         "stub_min_chars": 10,
+        "chunk_metadata_headings": ["Part of"],
     }.items():
         monkeypatch.setattr(settings, name, value)
 
@@ -84,3 +85,12 @@ def test_headingless_note_and_giant_line_stay_under_max():
     out = chunks("z" * (MAX * 3 + 7))
     assert [p for p, _ in out] == ["T"] * 4
     assert all(0 < len(c) <= MAX for _, c in out)
+
+
+def test_metadata_heading_is_not_a_path_ancestor():
+    body = f"## Part of\n- Parent\n\n{long('intro')}\n### Sub\n{long('sub')}"
+    assert chunks(body) == [
+        ("T", f"## Part of\n- Parent\n\n{long('intro')}"),
+        ("T > Sub", long("sub")),
+    ]
+    assert chunks(body.replace("Part of", "part OF"))[1][0] == "T > Sub"  # case-insensitive

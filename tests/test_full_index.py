@@ -23,6 +23,7 @@ def rules(monkeypatch):
         "chunk_merge_below_chars": 200,
         "chunk_overlap_chars": 300,
         "stub_min_chars": 10,
+        "chunk_metadata_headings": ["Part of"],
     }.items():
         monkeypatch.setattr(settings, name, value)
 

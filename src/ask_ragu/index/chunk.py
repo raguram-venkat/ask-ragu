@@ -1,6 +1,7 @@
 """Cleaned note body -> heading-aware chunks (SPEC §8 step 3). Sizes are in characters.
 
-1. Split on headings (outside code). heading_path = "Title > H2 > H3".
+1. Split on headings (outside code). heading_path = "Title > H2 > H3"; metadata headings
+   (CHUNK_METADATA_HEADINGS, e.g. "Part of") start a section but never join the path.
 2. Merge neighbours where one side is small, as long as the result fits the max.
    A merged chunk's heading_path is the shared prefix; the other headings stay in the text.
 3. Split anything still over the max on paragraph boundaries, with a small overlap.
@@ -49,6 +50,7 @@ def chunk_note(title: str, body: str) -> list[Chunk]:
 
 def _sections(title: str, body: str) -> list[Section]:
     sections, stack, fence = [], [], None  # stack: (level, heading text)
+    metadata = {h.lower() for h in settings.chunk_metadata_headings}
     current, lines = Section([title], "", ""), []
 
     def close():
@@ -64,8 +66,14 @@ def _sections(title: str, body: str) -> list[Section]:
             fence = m.group(1)
         elif m := HEADING.match(line):
             close()
-            level = len(m.group(1))
-            stack = [h for h in stack if h[0] < level] + [(level, m.group(2))]
+            level, text = len(m.group(1)), m.group(2)
+            stack = [h for h in stack if h[0] < level]
+            if text.lower() in metadata:
+                # e.g. "## Part of": structure, not topic. Not a heading_path ancestor of what
+                # follows; its line stays in the text so "Part of\n- Parent" still reads.
+                current, lines = Section([title] + [h[1] for h in stack], "", ""), [line]
+                continue
+            stack.append((level, text))
             current, lines = Section([title] + [h[1] for h in stack], line.strip(), ""), []
             continue
         lines.append(line)
@@ -134,3 +142,7 @@ def _split(text: str) -> list[str]:
 #      split on paragraphs, each <= 1500; p3 repeated as overlap because it is <= 300 chars
 #
 # No headings:   3,000 chars of paragraphs -> same as oversize, path "T" on every window
+#
+# Metadata:      ## Part of / - [[Parent]] / intro (300 chars) / ### Sub / 400 chars
+#   -> ("T", "## Part of\n- Parent\n\n<intro>"), ("T > Sub", "<Sub text>")
+#      without the rule it would be "T > Part of > Sub"
