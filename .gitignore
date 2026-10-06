@@ -5,3 +5,6 @@ __pycache__/
 .ruff_cache/
 cheatsheets/
 models/
+
+# Eval questions about the real vault (SPEC §12): private, never committed.
+eval/*.private.*

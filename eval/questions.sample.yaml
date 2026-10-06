@@ -1,0 +1,38 @@
+# Eval set format (Sprint 2 Task 9, SPEC §12). This sample is synthetic and public; the real set
+# lives next to it in questions.private.yaml, which is gitignored. Never put the real set in the
+# vault: it would be indexed and leak the answers into retrieval.
+#
+# Check a file against a vault clone:
+#   uv run python -m ask_ragu.evalset eval/questions.private.yaml /path/to/vault
+#
+# kind:
+#   single        one note answers it
+#   hop           the question is about `via`, but the answer also needs notes `via` links to
+#                 (gold = via + the linked notes; the checker verifies the links exist)
+#   overview      a MOC / source note that maps a whole topic
+#   unanswerable  nothing in the vault answers it; gold is empty and the right answer is a refusal
+# gold: vault paths that must all be in the assembled context for a hit (Sprint 4 hit rate).
+# origin: owner (written by you) or draft (proposed, not yet reviewed; the checker warns).
+version: 0
+questions:
+  - id: s01
+    kind: single
+    question: What does the espresso note say about extraction time?
+    gold: ["02 Concepts/Espresso.md"]
+    origin: owner
+  - id: s02
+    kind: hop
+    question: Why does grind size matter when pulling an espresso shot?
+    via: "02 Concepts/Espresso.md"
+    gold: ["02 Concepts/Espresso.md", "02 Concepts/Grinder.md"]
+    origin: owner
+  - id: s03
+    kind: overview
+    question: What have I written about coffee overall?
+    gold: ["01 MOCs/Coffee.md"]
+    origin: owner
+  - id: s04
+    kind: unanswerable
+    question: How do I brew matcha?
+    gold: []
+    origin: owner
