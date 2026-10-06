@@ -17,7 +17,7 @@ Estimated effort: ~11.2 h across 9 tasks
 - [x] [Task 4 — Heading-aware chunker + fixture vault](task_4_summary.md) · 90m
 - [x] [Task 5 — Local embeddings on ARM](task_5_summary.md) · 60m
 - [x] [Task 6 — Full index command](task_6_summary.md) · 75m
-- [ ] [Task 7 — Webhook receiver](task_7_summary.md) · 90m
+- [x] [Task 7 — Webhook receiver](task_7_summary.md) · 90m
 - [ ] [Task 8 — Incremental sync & reconciliation](task_8_summary.md) · 90m
 - [ ] [Task 9 — Eval set v0](task_9_summary.md) · 60m
 

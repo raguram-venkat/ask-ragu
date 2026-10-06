@@ -32,7 +32,10 @@ Files touched:
 
 Decisions made here:
 
-- 
+- Files on disk move forward with the commits: fetch → diff `<last_commit>..origin/<branch>` → `git reset --hard origin/<branch>` → index the diffed paths from disk → advance last_commit last. `git fetch` alone only updates `.git/`, and the indexer reads files from disk. Hard reset is safe: the sync is the clone's only writer, and it also lands force-pushes. A crash between reset and last_commit means the next run re-diffs from the old commit, which is harmless (idempotent).
+- The VM's clone lives in a named volume (`vault:/vault`), not in the container's filesystem, so it survives rebuilds and deploys (SPEC §11).
+- Open: first clone. An empty volume needs a one-time `git clone` (via the deploy key), e.g. at startup when `/vault/.git` is missing. Owned by this task or the deploy task, to be decided.
+- Laptop: `compose.override.yml` mounts the vault read-only, so fetch/reset can't write there. The local sync must skip fetch/reset (or test against a writable scratch clone).
 
 Gotchas:
 

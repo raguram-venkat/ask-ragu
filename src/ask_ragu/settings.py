@@ -11,6 +11,10 @@ class Settings(BaseSettings):
 
     vault_path: Path
 
+    # Webhook (SPEC §15); see .env.example.
+    webhook_secret: str
+    webhook_seen_deliveries: int
+
     # Vault structure rules (D-006); see .env.example.
     vault_folder_types: dict[str, str]
     vault_default_note_type: str

@@ -6,6 +6,8 @@ from fastapi import FastAPI
 from ask_ragu import db
 from ask_ragu.api import chat, health, webhook
 
+# uvicorn only configures its own loggers; this makes ask_ragu.* (e.g. background sync) visible.
+logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s: %(message)s")
 log = logging.getLogger("uvicorn.error")
 
 
