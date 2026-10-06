@@ -8,6 +8,7 @@ Task 8's startup reconciliation catches up from last_commit.
 import logging
 import threading
 from collections.abc import Callable
+from datetime import UTC, datetime
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +19,11 @@ class SyncRunner:
         self._lock = threading.Lock()  # guards the two flags below
         self._running = False
         self._dirty = False
+        self.last: dict | None = None  # outcome of the last finished run, for /index/status
+
+    @property
+    def running(self) -> bool:
+        return self._running
 
     def trigger(self) -> bool:
         """Start a run in a background thread, or mark one pending. True if a thread started."""
@@ -32,9 +38,11 @@ class SyncRunner:
     def _loop(self) -> None:
         while True:
             try:
-                self._job()
-            except Exception:  # keep the runner alive; the next trigger retries
+                result = {"ok": True, "result": str(self._job())}
+            except Exception as e:  # keep the runner alive; the next trigger retries
                 log.exception("sync failed")
+                result = {"ok": False, "error": f"{type(e).__name__}: {e}"}
+            self.last = {"finished_at": datetime.now(UTC).isoformat(timespec="seconds"), **result}
             with self._lock:
                 if not self._dirty:
                     self._running = False

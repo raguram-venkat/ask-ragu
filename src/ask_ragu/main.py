@@ -4,7 +4,8 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from ask_ragu import db
-from ask_ragu.api import chat, health, webhook
+from ask_ragu.api import chat, health, status, webhook
+from ask_ragu.index.sync import runner
 
 # uvicorn only configures its own loggers; this makes ask_ragu.* (e.g. background sync) visible.
 logging.basicConfig(level=logging.INFO, format="%(levelname)s:     %(name)s: %(message)s")
@@ -15,6 +16,7 @@ log = logging.getLogger("uvicorn.error")
 async def lifespan(app: FastAPI):
     with db.connect() as conn:
         log.info("migrations applied: %s", db.migrate(conn) or "none")
+    runner.trigger()  # reconciliation: catch up on pushes missed while down (SPEC §8 step 8)
     yield
 
 
@@ -22,3 +24,4 @@ app = FastAPI(title="ask-ragu", lifespan=lifespan)
 app.include_router(health.router)
 app.include_router(webhook.router)
 app.include_router(chat.router)
+app.include_router(status.router)

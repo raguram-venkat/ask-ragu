@@ -4,10 +4,12 @@ import json
 import threading
 import time
 from collections import deque
+from contextlib import nullcontext
 
 import pytest
 from fastapi.testclient import TestClient
 
+from ask_ragu import db
 from ask_ragu.api import webhook
 from ask_ragu.index.runner import SyncRunner
 from ask_ragu.main import app
@@ -87,3 +89,20 @@ def test_runner_is_single_flight_and_coalesces():
             break
         time.sleep(0.05)
     assert runs == [1, 1]
+
+
+def test_runner_records_last_outcome():
+    r = SyncRunner(lambda: 1 / 0)
+    r.trigger()
+    for _ in range(100):
+        if r.last:
+            break
+        time.sleep(0.05)
+    assert r.last["ok"] is False and "ZeroDivisionError" in r.last["error"]
+
+
+def test_index_status(conn, monkeypatch):
+    db.migrate(conn)
+    monkeypatch.setattr(db, "connect", lambda: nullcontext(conn))  # use the test schema
+    body = client.get("/index/status").json()
+    assert (body["notes"], body["last_commit"], body["sync_running"]) == (0, None, False)

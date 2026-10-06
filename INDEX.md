@@ -44,6 +44,8 @@ Last updated: 2026-10-03
 | [0014](adr/0014-auth-at-proxy-for-public-demo.md) | Basic auth at the proxy for the public demo | proposed |
 | 0015 | Graph traversal implementation (to be written in Sprint 3, Task 3) | — |
 | [0016](adr/0016-int8-bge-small-batch-1.md) | int8 bge-small, embedded one chunk at a time | accepted |
+| [0017](adr/0017-index-freshness-settings-hash-code-versions.md) | Index freshness: settings hash + code versions; one index per schema | accepted |
+| [0018](adr/0018-serialize-syncs-advisory-lock.md) | One sync at a time per index: advisory lock + coalescing runner | accepted |
 
 Proposed = came out of planning research; review and accept (or supersede) before the dependent task starts.
 
@@ -51,9 +53,9 @@ Proposed = came out of planning research; review and accept (or supersede) befor
 
 Full log in [DEVIATIONS.md](DEVIATIONS.md). Most recent 3:
 
+- D-011 Syncs serialized across processes by a per-schema Postgres advisory lock
+- D-010 Index settings or code version changes force a full index (settings hash); the system's clone is reset to the indexed commit
 - D-009 Quota policy enforces the free tier; A1 retry asks 2/12 first, falls back to 1/6, resizes later
-- D-008 Deploy work waits for A1 capacity; Sprint 2+ develop locally; Micro runs an A1 retry loop
-- D-007 Graph expansion bounded per hop, not just in total
 
 ## Other root files
 

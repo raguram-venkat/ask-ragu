@@ -8,21 +8,12 @@ from collections import deque
 from fastapi import APIRouter, Header, HTTPException, Request
 from fastapi.responses import JSONResponse
 
-from ask_ragu import db
-from ask_ragu.index.full import index_full
-from ask_ragu.index.runner import SyncRunner
+from ask_ragu.index.sync import runner
 from ask_ragu.settings import settings
 
 router = APIRouter()
 
 
-def _sync() -> None:
-    # ponytail: full index until Task 8 adds git fetch + incremental diff.
-    with db.connect() as conn:
-        index_full(conn, settings.vault_path)
-
-
-runner = SyncRunner(_sync)
 # In memory: a restart forgets them, which is fine because a re-run sync is idempotent.
 seen = deque(maxlen=settings.webhook_seen_deliveries)
 

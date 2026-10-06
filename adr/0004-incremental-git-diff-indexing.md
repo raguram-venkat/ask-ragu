@@ -10,7 +10,7 @@ Most pushes change a handful of notes; embedding the whole vault on ARM CPU take
 
 ## Decision
 
-Diff `last_indexed_commit..HEAD` with rename detection and apply adds, modifies, deletes, renames. Full index only on first run or when history was rewritten.
+Diff `last_indexed_commit..HEAD` with rename detection and apply adds, modifies, deletes, renames. Full index only on first run or when history was rewritten. Amended by D-010: also when the index settings in `.env` change (settings hash).
 
 ## Alternatives considered
 

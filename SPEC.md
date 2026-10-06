@@ -67,23 +67,24 @@ Oracle Cloud Always Free instance (Docker Compose)
         TLS termination + basic auth on every route except /webhook and /healthz, only public entry point  [D-004]
 ```
 
-Three logical services plus a reverse proxy. No task queue — the webhook acknowledges within GitHub's 10-second delivery window and hands work to an in-process background task guarded by a single-flight lock; a single-user vault pushes rarely enough that Celery/RQ would be solving a load problem this project doesn't have. [D-001]
+Three logical services plus a reverse proxy. No task queue — the webhook acknowledges within GitHub's 10-second delivery window and hands work to an in-process background task guarded by a single-flight lock, plus a per-index Postgres advisory lock so a CLI run never interleaves with it [D-011]; a single-user vault pushes rarely enough that Celery/RQ would be solving a load problem this project doesn't have. [D-001]
 
 ## 7. Data Model (Postgres)
 
 | Table | Key columns | Purpose |
 |---|---|---|
-| notes | id, path, title, note_type, frontmatter (jsonb), content_hash, updated_at | One row per note. note_type comes from the vault's numbered folders (meta, moc, concept, source, fleeting) [D-006]. content_hash detects unchanged files to skip re-embedding. |
+| notes | id, path, title, note_type, frontmatter (jsonb), content_hash, meta_hash, updated_at | One row per note. note_type comes from the vault's numbered folders (meta, moc, concept, source, fleeting) [D-006]. content_hash detects unchanged files to skip re-embedding. meta_hash (links + tags) lets a parser change rewrite them without re-embedding [D-010]. |
 | chunks | id, note_id (fk), heading_path, content, embedding (vector), tsv (tsvector), chunk_order | Heading-based chunks, not fixed-token windows. tsv is generated for lexical search. |
 | note_links | source_note_id, raw_target, target_note_id (nullable), link_kind | Raw wikilinks kept so they can be re-resolved every run; resolved rows are the graph's note→note edges, traversed in both directions. Tags and MOC notes act as hubs traversed at query time instead of materialized pairwise edges; folder_sibling edges dropped — folders in this vault encode note type, not topic [D-002]. |
 | note_tags | note_id, tag | Junction table. Tags above a cardinality threshold (e.g. used on >20% of notes) are excluded from edge generation — a generic tag like `#todo` isn't a meaningful relationship. |
+| index_state | last_commit, settings_hash, embedding_model, embedding_dim, embed_version, parse_version | One row: which commit the index reflects and what built it. A `settings_hash` different from the current index settings + code versions forces a full index; NULL counts as different [D-010]. |
 
 Dangling wikilinks (target note doesn't exist) are recorded with a null `target_note_id` and the raw target text, excluded from graph traversal, and available later as a vault-health stretch feature.
 
 ## 8. Indexing Pipeline
 
 1. Webhook receives a push event; signature verified before anything else runs; non-default-branch pushes and duplicate `X-GitHub-Delivery` ids ignored; responds 202 within GitHub's 10 s window and indexing continues in a background task [D-001].
-2. `git diff --find-renames` against the previous indexed commit, not a full rescan — gives add/modify/delete/rename per file explicitly. Renames update the existing note row's path (preserving id, edges, history) instead of delete+insert. If the last indexed commit no longer exists (force-push, rewritten history), fall back to a full index.
+2. `git diff --find-renames` against the previous indexed commit, not a full rescan — gives add/modify/delete/rename per file explicitly. Renames update the existing note row's path (preserving id, edges, history) instead of delete+insert. If the last indexed commit no longer exists (force-push, rewritten history), or the index settings or indexing code version changed since the last run (settings hash in `index_state`), fall back to a full index [D-010]. When the clone belongs to the system, its working tree is then reset to the commit just indexed, so files on disk match the index [D-010].
 3. For each added/modified file outside the excluded paths (Templates/, .obsidian/, Bases/, Attachments/, non-.md) [D-006]: parse frontmatter into `notes.frontmatter` (malformed YAML logs a warning, never fails the run); strip dataview/base code blocks and Templater tags, unwrap callouts [D-006]; split body by heading into chunks; extract `[[wikilinks]]`, resolving aliases and case-insensitive filename matches against a vault-wide alias map built at index time.
 4. Compute `content_hash`; skip re-embedding unchanged notes even if they were touched in the push (e.g. only frontmatter changed).
 5. Embed each chunk locally (small CPU-friendly embedding model in the app or a sidecar — embedding is cheap enough to self-host even on the ARM CPU, and doing so means note content never leaves the host during the frequent indexing step, only retrieved snippets do, later, at query time).
@@ -134,7 +135,7 @@ Each row is expanded as an ADR in `adr/` (indexed in INDEX.md).
 | Graph storage | Edges table + recursive CTE in Postgres | Dedicated graph DB (Neo4j) | At single-user-vault scale, traversal depth ≤2 doesn't need a specialized engine; one fewer stateful service to run and back up |
 | Embeddings | Self-hosted small model, generated at index time | External embedding API | Keeps note content from ever leaving the host during the frequent indexing step; only retrieved snippets go out, and only at query time |
 | Indexing trigger | Git-diff-based incremental update on push | Full reindex every push | Scales with change size, not vault size; preserves note identity across renames instead of treating them as delete+create |
-| Async infra | Ack-fast webhook + in-process background task, single-flight lock [D-001] | Synchronous in-request indexing; task queue (Celery/RQ + Redis) | Synchronous breaks GitHub's 10 s delivery timeout; a queue adds a broker service for a load this project doesn't have |
+| Async infra | Ack-fast webhook + in-process background task, single-flight lock [D-001], serialized across processes by an advisory lock [D-011] | Synchronous in-request indexing; task queue (Celery/RQ + Redis) | Synchronous breaks GitHub's 10 s delivery timeout; a queue adds a broker service for a load this project doesn't have |
 | Inference | Config-driven fallback chain, uniform local/remote provider contract | Single hardcoded provider | Resilience to any one provider's outage or rate limit, and a concrete design-pattern (Strategy/Chain-of-Responsibility) story |
 | Hosting | Oracle Cloud Always Free ARM (12GB RAM, not time-limited) | AWS free tier | AWS's post-2025 free tier is a 6-month credit allowance, not an ongoing free tier — doesn't satisfy an always-on, indefinitely-free requirement |
 | Reranking | Hop-decay + hybrid-score fusion | Cross-encoder reranker | Added model and latency cost isn't justified at this corpus size; revisit only if eval shows a real ranking problem it would fix |

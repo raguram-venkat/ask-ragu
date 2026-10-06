@@ -8,3 +8,13 @@ repos:
     rev: v8.30.0
     hooks:
       - id: gitleaks
+  - repo: local
+    hooks:
+      # ADR-0017: a change to indexing code that alters its output must bump EMBED_/PARSE_VERSION,
+      # otherwise a deployed system never re-indexes. Fast (no DB); runs only when these files change.
+      - id: index-code-versions
+        name: index code versions (golden test)
+        entry: uv run pytest -q tests/test_index_versions.py
+        language: system
+        pass_filenames: false
+        files: ^(src/ask_ragu/index/(parse|chunk|embed|full)\.py|tests/test_index_versions\.py)$

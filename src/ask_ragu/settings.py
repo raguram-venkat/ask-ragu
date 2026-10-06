@@ -10,6 +10,8 @@ class Settings(BaseSettings):
     database_url: str
 
     vault_path: Path
+    vault_ref: str
+    vault_fetch: bool
 
     # Webhook (SPEC §15); see .env.example.
     webhook_secret: str
