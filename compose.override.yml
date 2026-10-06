@@ -6,3 +6,5 @@ services:
   app:
     ports:
       - "127.0.0.1:8000:8000"
+    volumes:
+      - ${VAULT_HOST_PATH}:/vault:ro  # vault clone, read-only; VAULT_PATH points here

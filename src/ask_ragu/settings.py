@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -6,6 +8,8 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     database_url: str
+
+    vault_path: Path
 
     # Vault structure rules (D-006); see .env.example.
     vault_folder_types: dict[str, str]
