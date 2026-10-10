@@ -39,5 +39,8 @@ class Settings(BaseSettings):
     embedding_cache_dir: str
     embedding_query_prefix: str
 
+    # Graph (query time, never re-indexes); see .env.example.
+    graph_tag_hub_max_share: float
+
 
 settings = Settings()

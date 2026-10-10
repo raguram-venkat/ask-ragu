@@ -12,7 +12,7 @@ Estimated effort: ~5.2 h across 4 tasks
 ## Tasks
 
 - [x] [Task 1 — Link resolution & alias map](task_1_summary.md) · 90m
-- [ ] [Task 2 — Tag & MOC hub semantics](task_2_summary.md) · 75m
+- [x] [Task 2 — Tag & MOC hub semantics](task_2_summary.md) · 75m
 - [ ] [Task 3 — Bounded graph expansion](task_3_summary.md) · 90m
 - [ ] [Task 4 — Graph CLI & vault health report](task_4_summary.md) · 60m
 
@@ -31,7 +31,7 @@ Estimated effort: ~5.2 h across 4 tasks
 ## ADRs touched
 
 - ADR-0002 graph in Postgres — accepted
-- ADR-0010 MOC/tag hubs — proposed, resolve before Task 2
+- ADR-0010 MOC/tag hubs — accepted 2026-10-10 (Task 2)
 - ADR-0015 traversal implementation — to write in Task 3
 
 ## Outcome

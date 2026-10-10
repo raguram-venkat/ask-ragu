@@ -2,7 +2,7 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier.
 
-Current status: Sprint 2 closed 2026-10-06 (local-first); Sprint 3 (Graph Layer) in progress: Task 1 done, Task 2 next. Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) keeps running; Tasks 4–6 wait for the A1 (D-008). Eval v0 drafts need the owner's rewrite before Sprint 4.
+Current status: Sprint 2 closed 2026-10-06 (local-first); Sprint 3 (Graph Layer) in progress: Tasks 1–2 done, Task 3 next. Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) keeps running; Tasks 4–6 wait for the A1 (D-008). Eval v0 drafts need the owner's rewrite before Sprint 4.
 Last updated: 2026-10-10
 
 ## 30-minute reading order
@@ -37,7 +37,7 @@ Last updated: 2026-10-10
 | [0007](adr/0007-oracle-always-free-over-aws.md) | Oracle Always Free over AWS free tier | accepted |
 | [0008](adr/0008-rrf-hop-decay-over-cross-encoder.md) | RRF + hop decay over a cross-encoder reranker | accepted |
 | [0009](adr/0009-exclude-training-free-tiers.md) | Exclude free tiers that train on prompts | proposed |
-| [0010](adr/0010-moc-hubs-over-folder-siblings.md) | MOC/tag hubs over folder-sibling edges | proposed |
+| [0010](adr/0010-moc-hubs-over-folder-siblings.md) | MOC/tag hubs over folder-sibling edges | accepted |
 | [0011](adr/0011-index-is-disposable.md) | Index is derived state: rebuild, don't back up | proposed |
 | [0012](adr/0012-raw-sql-over-orm.md) | psycopg 3 + raw SQL over an ORM | accepted |
 | [0013](adr/0013-caddy-duckdns-tls.md) | Caddy + DuckDNS for free TLS | proposed |
