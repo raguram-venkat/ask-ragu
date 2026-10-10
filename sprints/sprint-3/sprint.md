@@ -14,7 +14,7 @@ Estimated effort: ~5.2 h across 4 tasks
 - [x] [Task 1 — Link resolution & alias map](task_1_summary.md) · 90m
 - [x] [Task 2 — Tag & MOC hub semantics](task_2_summary.md) · 75m
 - [x] [Task 3 — Bounded graph expansion](task_3_summary.md) · 90m
-- [ ] [Task 4 — Graph CLI & vault health report](task_4_summary.md) · 60m
+- [x] [Task 4 — Graph CLI & vault health report](task_4_summary.md) · 60m
 
 ## Definition of Done
 

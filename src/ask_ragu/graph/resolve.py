@@ -20,7 +20,7 @@ def key(name: str) -> str:
     return unicodedata.normalize("NFC", name.strip()).lower().removesuffix(".md")
 
 
-def _aliases(frontmatter: dict) -> list[str]:
+def aliases(frontmatter: dict) -> list[str]:
     value = frontmatter.get("aliases")  # list, or a single string
     return [str(a) for a in (value if isinstance(value, list) else [value]) if a]
 
@@ -36,7 +36,7 @@ def resolver(notes: list[tuple]):
     for note_id, path, frontmatter in notes:
         k = key(path)
         by_name[k.rsplit("/", 1)[-1]].append((k, path, note_id))
-        for alias in _aliases(frontmatter):
+        for alias in aliases(frontmatter):
             by_alias[key(alias)].append((path, note_id))
 
     def resolve(raw: str):
