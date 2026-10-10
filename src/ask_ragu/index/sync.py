@@ -14,6 +14,7 @@ from pathlib import Path
 import psycopg
 
 from ask_ragu import db
+from ask_ragu.graph.resolve import resolve_links
 from ask_ragu.index import full
 from ask_ragu.index.full import (
     Stats,
@@ -89,6 +90,8 @@ def sync(conn: psycopg.Connection, vault: Path, full: bool = False) -> Stats:
     with sync_lock(conn):
         target = target_commit(vault)
         stats = _sync_to(conn, vault, target, full)
+        # Every run, noop too: cheap, and a resolver code change applies at the next startup.
+        resolve_links(conn)
         if settings.vault_fetch:  # the system's own clone (VM); never the laptop's working clone
             _update_working_tree(vault, target)
         return stats

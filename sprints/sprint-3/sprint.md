@@ -4,14 +4,14 @@ Goal: Raw wikilinks resolve Obsidian-style into a note graph (links plus tag and
 
 Spec reference: SPEC.md §7, §9 step 4, §14, §16 Phase 3 · D-002, D-007
 
-Status: planned
-Started: 
+Status: in progress
+Started: 2026-10-06
 Closed: 
 Estimated effort: ~5.2 h across 4 tasks
 
 ## Tasks
 
-- [ ] [Task 1 — Link resolution & alias map](task_1_summary.md) · 90m
+- [x] [Task 1 — Link resolution & alias map](task_1_summary.md) · 90m
 - [ ] [Task 2 — Tag & MOC hub semantics](task_2_summary.md) · 75m
 - [ ] [Task 3 — Bounded graph expansion](task_3_summary.md) · 90m
 - [ ] [Task 4 — Graph CLI & vault health report](task_4_summary.md) · 60m

@@ -369,3 +369,31 @@ def test_other_schemas_have_their_own_lock(conn, connect):
             other.execute("SELECT pg_advisory_unlock(%s)", (key,))
     finally:
         conn.execute("DROP SCHEMA lock_other CASCADE")
+
+
+def test_links_are_re_resolved_across_the_vault_every_sync(conn, repos):
+    """Unchanged notes' links follow renames, deletes and new notes (Sprint 3 Task 1)."""
+    vault, push = repos
+    db.migrate(conn)
+
+    def targets():
+        rows = conn.execute(
+            "SELECT s.path, l.raw_target, t.path FROM note_links l"
+            " JOIN notes s ON s.id = l.source_note_id LEFT JOIN notes t ON t.id = l.target_note_id"
+        ).fetchall()
+        return {(src, raw): dst for src, raw, dst in rows}
+
+    sync.sync(conn, vault)
+    espresso = "02 Concepts/Espresso.md"
+    assert targets() == {(CAFE, "Espresso"): espresso, (espresso, "Coffee"): None}
+
+    # A new note fixes a dangling link in a note that didn't change.
+    push({"Coffee.md": "The drink, in general terms."})
+    sync.sync(conn, vault)
+    assert targets()[(espresso, "Coffee")] == "Coffee.md"
+
+    # A rename outside Obsidian breaks the link; deleting the target leaves it dangling too.
+    run(vault.parent / "origin", "mv", espresso, "02 Concepts/Ristretto.md")
+    push({"Coffee.md": None})
+    sync.sync(conn, vault)
+    assert targets() == {(CAFE, "Espresso"): None, ("02 Concepts/Ristretto.md", "Coffee"): None}

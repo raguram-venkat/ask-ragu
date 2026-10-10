@@ -2,8 +2,8 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier.
 
-Current status: Sprint 2 closed 2026-10-06 (local-first); Sprint 3 (Graph Layer) is next. Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) keeps running; Tasks 4–6 wait for the A1 (D-008). Eval v0 drafts need the owner's rewrite before Sprint 4.
-Last updated: 2026-10-06
+Current status: Sprint 2 closed 2026-10-06 (local-first); Sprint 3 (Graph Layer) in progress: Task 1 done, Task 2 next. Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) keeps running; Tasks 4–6 wait for the A1 (D-008). Eval v0 drafts need the owner's rewrite before Sprint 4.
+Last updated: 2026-10-10
 
 ## 30-minute reading order
 
@@ -19,7 +19,7 @@ Last updated: 2026-10-06
 |---|---|---|---|
 | [sprint-1](sprints/sprint-1/sprint.md) | Foundations & Infra | parked — T4–T6 wait for A1 (D-008) | Compose stack on laptop and Oracle A1, HTTPS + auth, vault cloned via deploy key |
 | [sprint-2](sprints/sprint-2/sprint.md) | Webhook & Incremental Indexing | closed 2026-10-06 (local-first) | Signed push / startup / CLI → rename-aware incremental sync, proven equal to a full index on the real vault |
-| [sprint-3](sprints/sprint-3/sprint.md) | Graph Layer | next | Obsidian-style link resolution, tag/MOC hubs, bounded 2-hop expansion |
+| [sprint-3](sprints/sprint-3/sprint.md) | Graph Layer | in progress | Obsidian-style link resolution, tag/MOC hubs, bounded 2-hop expansion |
 | [sprint-4](sprints/sprint-4/sprint.md) | Retrieval | planned | Lexical + vector → RRF → graph expansion → provenance context, proven by an ablation table |
 | [sprint-5](sprints/sprint-5/sprint.md) | Generation, Chain & UI | planned | Config-ordered provider chain (hosted → local llama.cpp), validated citations, minimal UI |
 | [sprint-6](sprints/sprint-6/sprint.md) | Evaluation & Hardening | planned | End-to-end eval, edge-case sweep, security/ops pass, CI, README + demo script |
@@ -53,9 +53,9 @@ Proposed = came out of planning research; review and accept (or supersede) befor
 
 Full log in [DEVIATIONS.md](DEVIATIONS.md). Most recent 3:
 
+- D-012 Links re-resolved vault-wide after every sync; name/alias collisions take a deterministic tie-break
 - D-011 Syncs serialized across processes by a per-schema Postgres advisory lock
 - D-010 Index settings or code version changes force a full index (settings hash); the system's clone is reset to the indexed commit
-- D-009 Quota policy enforces the free tier; A1 retry asks 2/12 first, falls back to 1/6, resizes later
 
 ## Other root files
 
