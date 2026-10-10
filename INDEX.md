@@ -2,7 +2,7 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier.
 
-Current status: Sprint 2 closed 2026-10-06 (local-first); Sprint 3 (Graph Layer) in progress: Tasks 1–2 done, Task 3 next. Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) keeps running; Tasks 4–6 wait for the A1 (D-008). Eval v0 drafts need the owner's rewrite before Sprint 4.
+Current status: Sprint 2 closed 2026-10-06 (local-first); Sprint 3 (Graph Layer) in progress: Tasks 1–3 done, Task 4 next. Sprint 1: Tasks 1–2 done; Task 3 blocked on Oracle A1 capacity; Task 7 (A1 retry runner on the Micro) keeps running; Tasks 4–6 wait for the A1 (D-008). Eval v0 drafts need the owner's rewrite before Sprint 4.
 Last updated: 2026-10-10
 
 ## 30-minute reading order
@@ -42,7 +42,7 @@ Last updated: 2026-10-10
 | [0012](adr/0012-raw-sql-over-orm.md) | psycopg 3 + raw SQL over an ORM | accepted |
 | [0013](adr/0013-caddy-duckdns-tls.md) | Caddy + DuckDNS for free TLS | proposed |
 | [0014](adr/0014-auth-at-proxy-for-public-demo.md) | Basic auth at the proxy for the public demo | proposed |
-| 0015 | Graph traversal implementation (to be written in Sprint 3, Task 3) | — |
+| [0015](adr/0015-per-hop-queries-over-recursive-cte.md) | Graph expansion as one query per hop, not one recursive CTE | accepted |
 | [0016](adr/0016-int8-bge-small-batch-1.md) | int8 bge-small, embedded one chunk at a time | accepted |
 | [0017](adr/0017-index-freshness-settings-hash-code-versions.md) | Index freshness: settings hash + code versions; one index per schema | accepted |
 | [0018](adr/0018-serialize-syncs-advisory-lock.md) | One sync at a time per index: advisory lock + coalescing runner | accepted |
@@ -53,9 +53,9 @@ Proposed = came out of planning research; review and accept (or supersede) befor
 
 Full log in [DEVIATIONS.md](DEVIATIONS.md). Most recent 3:
 
+- D-013 Graph expansion runs one SQL query per hop instead of one recursive CTE
 - D-012 Links re-resolved vault-wide after every sync; name/alias collisions take a deterministic tie-break
 - D-011 Syncs serialized across processes by a per-schema Postgres advisory lock
-- D-010 Index settings or code version changes force a full index (settings hash); the system's clone is reset to the indexed commit
 
 ## Other root files
 

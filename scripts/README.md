@@ -5,6 +5,17 @@ One-off tools run by hand from the laptop. Not imported by the app, not run in C
 | Script | Purpose | Used in |
 |---|---|---|
 | `profile_vault.py` | Measure the vault's real shape before designing the parser and chunker | sprint-2/task_1 |
+| `bench_expansion.py` | Per-hop expansion vs one recursive CTE: latency and overlap on the real index | sprint-3/task_3, ADR-0015 |
+
+## bench_expansion.py
+
+```bash
+uv run python scripts/bench_expansion.py          # DB: TEST_DATABASE_URL from .env
+PGOPTIONS="-c jit=off" uv run python scripts/bench_expansion.py   # without Postgres JIT
+```
+
+Read-only; prints aggregate numbers only. Caps and depth come from `.env` (`GRAPH_*`). Re-run it
+on the A1 once it exists, and whenever the vault or the expansion query changes a lot.
 
 ## profile_vault.py
 

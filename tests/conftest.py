@@ -38,3 +38,31 @@ def connect():
     yield make
     for c in opened:
         c.close()
+
+
+@pytest.fixture
+def make_graph(conn):
+    """Build a hand-made graph in the test schema: make_graph(notes={name: note_type},
+    links=[(src, dst)], tags=[(name, tag)]) -> {name: id}. Links are stored resolved."""
+    from ask_ragu import db
+
+    db.migrate(conn)
+
+    def make(notes: dict, links: list, tags: list) -> dict:
+        ids = {
+            name: conn.execute(
+                "INSERT INTO notes (path, title, note_type, content_hash, meta_hash)"
+                " VALUES (%s, %s, %s, '', '') RETURNING id",
+                (f"{name}.md", name, kind),
+            ).fetchone()[0]
+            for name, kind in notes.items()
+        }
+        for src, dst in links:
+            conn.execute(
+                "INSERT INTO note_links VALUES (%s, %s, %s, 'link')", (ids[src], dst, ids[dst])
+            )
+        for name, tag in tags:
+            conn.execute("INSERT INTO note_tags VALUES (%s, %s)", (ids[name], tag))
+        return ids
+
+    return make

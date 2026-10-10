@@ -41,6 +41,9 @@ class Settings(BaseSettings):
 
     # Graph (query time, never re-indexes); see .env.example.
     graph_tag_hub_max_share: float
+    graph_max_hops: int
+    graph_fanout_cap: int
+    graph_total_cap: int
 
 
 settings = Settings()

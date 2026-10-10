@@ -58,7 +58,7 @@ Oracle Cloud Always Free instance (Docker Compose)
   |
   |-- postgres (+ pgvector) container
   |     notes, chunks, note_links, note_tags, index_state  [D-002]
-  |     full-text (tsvector) + vector (pgvector) + graph (recursive CTE)
+  |     full-text (tsvector) + vector (pgvector) + graph (per-hop SQL) [D-013]
   |
   |-- local-model container (llama.cpp or similar, small quantized model)
   |     exposes the same provider HTTP contract as external APIs
@@ -97,7 +97,7 @@ Dangling wikilinks (target note doesn't exist) are recorded with a null `target_
 1. Embed the incoming question.
 2. Hybrid seed search over `chunks`: fuse full-text (`tsv @@ query`) and vector similarity (`embedding <-> query_vec`) rankings (reciprocal rank fusion), take top-k seed chunks (k≈8).
 3. Collect the distinct notes behind those seed chunks as seed nodes.
-4. Recursive CTE graph expansion from the seed nodes over resolved `note_links` and tag/MOC hubs, depth ≤ 2, bounded both per hop (fan-out cap, so a MOC or a popular tag can't flood the frontier) and in total (e.g. 30 notes) [D-007]. MOC notes are traversed through but their own chunks are not returned as context [D-002].
+4. Graph expansion from the seed nodes, one SQL query per hop [D-013], over resolved `note_links` and tag/MOC hubs, depth ≤ 2, bounded both per hop (fan-out cap, so a MOC or a popular tag can't flood the frontier) and in total (e.g. 30 notes) [D-007]. MOC notes are traversed through but their own chunks are not returned as context [D-002].
 5. For each expanded note, pick its own best-matching chunk against the query (not the whole note) — a linked-but-not-top-ranked note contributes only its most relevant excerpt.
 6. Score = semantic similarity × hop-decay (hop-1 weighted higher than hop-2) × note_type prior (fleeting and meta lower) [D-006], fuse with the hybrid seed scores, take the top-N that fit the generation context budget.
 7. Assemble context with explicit provenance per chunk: note title, and how it was reached (direct match, or "linked from <note>").
@@ -132,7 +132,7 @@ Each row is expanded as an ADR in `adr/` (indexed in INDEX.md).
 | Decision | Chosen | Rejected | Why |
 |---|---|---|---|
 | Search engine | Postgres full-text + pgvector | OpenSearch | Neither lexical-only nor a second JVM service solves the graph-structure problem; Postgres gets hybrid search and graph traversal in one place |
-| Graph storage | Edges table + recursive CTE in Postgres | Dedicated graph DB (Neo4j) | At single-user-vault scale, traversal depth ≤2 doesn't need a specialized engine; one fewer stateful service to run and back up |
+| Graph storage | Edges table + per-hop SQL in Postgres [D-013] | Dedicated graph DB (Neo4j) | At single-user-vault scale, traversal depth ≤2 doesn't need a specialized engine; one fewer stateful service to run and back up |
 | Embeddings | Self-hosted small model, generated at index time | External embedding API | Keeps note content from ever leaving the host during the frequent indexing step; only retrieved snippets go out, and only at query time |
 | Indexing trigger | Git-diff-based incremental update on push | Full reindex every push | Scales with change size, not vault size; preserves note identity across renames instead of treating them as delete+create |
 | Async infra | Ack-fast webhook + in-process background task, single-flight lock [D-001], serialized across processes by an advisory lock [D-011] | Synchronous in-request indexing; task queue (Celery/RQ + Redis) | Synchronous breaks GitHub's 10 s delivery timeout; a queue adds a broker service for a load this project doesn't have |
@@ -163,7 +163,7 @@ For sprint planning, not a fixed schedule — slice further as needed. Host-depe
 
 1. Infra: Oracle host provisioned, Docker Compose skeleton, Postgres+pgvector running, deploy key working, manual clone verified.
 2. Webhook + incremental indexing: signature verification, git-diff-based pipeline, frontmatter/chunk parsing, embeddings, upsert; eval question set written here [D-003].
-3. Graph layer: edge computation from wikilinks/tags, alias resolution, recursive CTE traversal.
+3. Graph layer: edge computation from wikilinks/tags, alias resolution, bounded per-hop traversal [D-013].
 4. Retrieval: hybrid seed search, graph expansion, per-note best-chunk selection, fused ranking, provenance assembly.
 5. Generation: provider interface, local model container, hosted provider integrations, fallback config, grounded prompt design; minimal web UI [D-004].
 6. Evaluation + hardening: end-to-end eval run, retrieval/generation metrics, edge-case handling from section 14, security pass from section 15.

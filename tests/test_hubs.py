@@ -6,7 +6,6 @@ tags: x on A, B, D · y on C · common on all 6 notes (over the cutoff)
 
 import pytest
 
-from ask_ragu import db
 from ask_ragu.graph.hubs import neighbours
 from ask_ragu.settings import settings
 
@@ -16,25 +15,11 @@ TAGS = [("A", "x"), ("B", "x"), ("D", "x"), ("C", "y")] + [(n, "common") for n i
 
 
 @pytest.fixture
-def graph(conn, monkeypatch):
+def graph(conn, make_graph, monkeypatch):
     monkeypatch.setattr(settings, "graph_tag_hub_max_share", 0.6)  # x: 3/6 kept, common: 6/6 not
-    db.migrate(conn)
-    ids = {
-        name: conn.execute(
-            "INSERT INTO notes (path, title, note_type, content_hash, meta_hash)"
-            " VALUES (%s, %s, %s, '', '') RETURNING id",
-            (f"{name}.md", name, kind),
-        ).fetchone()[0]
-        for name, kind in NOTES.items()
-    }
-    for src, dst in LINKS:
-        conn.execute(
-            "INSERT INTO note_links VALUES (%s, %s, %s, 'link')", (ids[src], dst, ids[dst])
-        )
+    ids = make_graph(NOTES, LINKS, TAGS)
     conn.execute("INSERT INTO note_links VALUES (%s, 'C', %s, 'embed')", (ids["A"], ids["C"]))
     conn.execute("INSERT INTO note_links VALUES (%s, 'Gone', NULL, 'link')", (ids["A"],))
-    for name, tag in TAGS:
-        conn.execute("INSERT INTO note_tags VALUES (%s, %s)", (ids[name], tag))
     names = {v: k for k, v in ids.items()}
 
     def edges(name):
