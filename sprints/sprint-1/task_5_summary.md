@@ -2,11 +2,11 @@
 
 Status: todo
 Est: 60m
-Spec: SPEC.md §11
+Spec: SPEC.md §11 · D-014 (host = the Micro)
 
 What: Read-only ed25519 deploy key on the vault repo, mounted as a Docker secret, used to clone only `.md` files into a named volume.
 
-Approach: Generate the key on the VM (private half never leaves it); partial clone (`--filter=blob:none`) plus sparse-checkout for `*.md`, excluding Templates/, .obsidian/, Bases/, Attachments/.
+Approach: Generate the key on the Micro (private half never leaves it); partial clone (`--filter=blob:none`) plus sparse-checkout for `*.md`, excluding Templates/, .obsidian/, Bases/, Attachments/.
 
 Read first:
 

@@ -21,7 +21,7 @@ OpenSearch was dropped from this project, not because it's bad technology, but b
 ## 3. Non-Negotiables
 
 - Fully containerized, reproducible via `docker-compose up`.
-- Multi-provider inference fallback chain (a local model plus hosted APIs), reorderable by an admin without a code change.
+- Multi-provider inference fallback chain (hosted APIs serving open-weight models, optionally one small self-hosted model on a free platform), reorderable by an admin without a code change. [D-015]
 - Zero recurring cost — must run entirely on free-tier infrastructure.
 
 ## 4. Design Principles
@@ -47,7 +47,7 @@ GitHub (private repo, Knowledge base vault)
         |
         | push --> webhook (HMAC-verified)
         v
-Oracle Cloud Always Free instance (Docker Compose)
+Oracle Cloud Always Free E2.1.Micro, x86_64, 1 GB RAM (Docker Compose, per-container memory limits, swap)  [D-014]
   |
   |-- app container (FastAPI)
   |     /webhook   -> verify HMAC -> 202 -> background: git fetch + diff (rename-aware) -> parse -> chunk -> embed -> upsert  [D-001]
@@ -60,14 +60,14 @@ Oracle Cloud Always Free instance (Docker Compose)
   |     notes, chunks, note_links, note_tags, index_state  [D-002]
   |     full-text (tsvector) + vector (pgvector) + graph (per-hop SQL) [D-013]
   |
-  |-- local-model container (llama.cpp or similar, small quantized model)
-  |     exposes the same provider HTTP contract as external APIs
-  |
   |-- reverse proxy (Caddy or nginx)
         TLS termination + basic auth on every route except /webhook and /healthz, only public entry point  [D-004]
+
+Hosted LLM APIs (open-weight models) [+ optional private Hugging Face Space running llama.cpp]  [D-015]
+        ^ called by /chat at query time only, with the retrieved snippets
 ```
 
-Three logical services plus a reverse proxy. No task queue — the webhook acknowledges within GitHub's 10-second delivery window and hands work to an in-process background task guarded by a single-flight lock, plus a per-index Postgres advisory lock so a CLI run never interleaves with it [D-011]; a single-user vault pushes rarely enough that Celery/RQ would be solving a load problem this project doesn't have. [D-001]
+Two services (app, postgres) plus a reverse proxy; no local-model container, inference is hosted (§10) [D-015]. No task queue — the webhook acknowledges within GitHub's 10-second delivery window and hands work to an in-process background task guarded by a single-flight lock, plus a per-index Postgres advisory lock so a CLI run never interleaves with it [D-011]; a single-user vault pushes rarely enough that Celery/RQ would be solving a load problem this project doesn't have. [D-001]
 
 ## 7. Data Model (Postgres)
 
@@ -87,7 +87,7 @@ Dangling wikilinks (target note doesn't exist) are recorded with a null `target_
 2. `git diff --find-renames` against the previous indexed commit, not a full rescan — gives add/modify/delete/rename per file explicitly. Renames update the existing note row's path (preserving id, edges, history) instead of delete+insert. If the last indexed commit no longer exists (force-push, rewritten history), or the index settings or indexing code version changed since the last run (settings hash in `index_state`), fall back to a full index [D-010]. When the clone belongs to the system, its working tree is then reset to the commit just indexed, so files on disk match the index [D-010].
 3. For each added/modified file outside the excluded paths (Templates/, .obsidian/, Bases/, Attachments/, non-.md) [D-006]: parse frontmatter into `notes.frontmatter` (malformed YAML logs a warning, never fails the run); strip dataview/base code blocks and Templater tags, unwrap callouts [D-006]; split body by heading into chunks; extract `[[wikilinks]]` raw. After every sync, all links are re-resolved vault-wide (case-insensitive name or path suffix first, then frontmatter `aliases`), so new notes and renames take effect in unchanged notes too [D-012].
 4. Compute `content_hash`; skip re-embedding unchanged notes even if they were touched in the push (e.g. only frontmatter changed).
-5. Embed each chunk locally (small CPU-friendly embedding model in the app or a sidecar — embedding is cheap enough to self-host even on the ARM CPU, and doing so means note content never leaves the host during the frequent indexing step, only retrieved snippets do, later, at query time).
+5. Embed each chunk locally (small CPU-friendly embedding model in the app or a sidecar — embedding is cheap enough to self-host even on a 1 GB x86 Micro with an int8 model at batch 1 [D-014], and doing so means note content never leaves the host during the frequent indexing step, only retrieved snippets do, later, at query time).
 6. Upsert notes/chunks/tags in a transaction; recompute outgoing edges for changed notes.
 7. For deleted files: delete the note row (cascades to its chunks and edges).
 8. Container startup runs one reconciliation pass against the last indexed commit, catching any webhook missed during downtime.
@@ -104,19 +104,19 @@ Dangling wikilinks (target note doesn't exist) are recorded with a null `target_
 
 ## 10. Generation & Inference Chain
 
-- Common provider contract: `generate(prompt, context) -> response`, implemented identically whether the provider is the local model container or an external API — the fallback chain doesn't need to know which.
+- Common provider contract: `generate(prompt, context) -> response`, implemented identically whether the provider is a hosted API or the self-hosted Space [D-015] — the fallback chain doesn't need to know which.
 - Ordered provider list lives in config, not code; admin reorders by editing config and restarting, no redeploy of logic.
 - Each provider owns its own failure handling — timeout, rate limit (429), malformed response — and falls through to the next entry on failure.
-- Local provider: a small instruction-tuned model (roughly 1-3B parameters, quantized) served via llama.cpp or equivalent, on the ARM CPU. Slow by design; it's the fallback-of-last-resort and the serving-mechanics learning target, not the primary path.
-- Hosted providers: 2-3 APIs with usable free tiers. Exact providers and quotas to be verified at implementation time — free-tier terms change often enough that pinning specific names now would likely be wrong by the time this is built. Providers whose free tier trains on prompts (e.g. Gemini's free tier outside the EU/UK/EEA as of mid-2026) are disabled by default via a `trains_on_data` flag in provider config [D-005].
+- Self-hosted provider (optional): a small instruction-tuned model (roughly 0.5-3B parameters, quantized) served by llama.cpp in a private Hugging Face Space on free CPU hardware, called through the same OpenAI-compatible contract. Slow and cold-starts after idle; it's the fallback-of-last-resort and the serving-mechanics learning target, not the primary path. If its timeboxed attempt fails, the chain is hosted-only. No model runs on the host itself: 1 GB RAM can't hold one next to Postgres [D-015].
+- Hosted providers: 2-3 APIs with usable free tiers, serving open-weight models only [D-015]. Exact providers and quotas to be verified at implementation time — free-tier terms change often enough that pinning specific names now would likely be wrong by the time this is built. Providers whose free tier trains on prompts (e.g. Gemini's free tier outside the EU/UK/EEA as of mid-2026) are disabled by default via a `trains_on_data` flag in provider config [D-005].
 - Prompt requires the model to answer only from supplied context, cite note titles, and explicitly say the vault doesn't cover it rather than guessing — grounding and honest refusal over confident hallucination.
 
 ## 11. Hosting & Infrastructure
 
-- Host: Oracle Cloud Always Free, Ampere A1 ARM instance (2 OCPU / 12GB RAM as of the 2026 allocation, not time-limited). Fallback if signup/capacity fails: GCP e2-micro (always-free, 1GB RAM — workable but tighter). Until A1 capacity is available, a temporary E2.1.Micro (Always Free) in the same VCN runs only an A1 retry loop and is terminated once the A1 exists [D-008]. Zero cost is enforced by a tenancy quota policy (A1 ≤ 2 OCPU / 12 GB, no other compute shapes, block storage ≤ 200 GB); budget alerts are only a second line of defence. The A1 may first be acquired at 1 OCPU / 6 GB and resized to 2/12 later [D-009].
+- Host: Oracle Cloud Always Free VM.Standard.E2.1.Micro (x86_64, 1 GB RAM, not time-limited), the instance that also runs the A1 retry loop [D-008]. The A1 (Ampere ARM, 2 OCPU / 12 GB) never had capacity, so the stack runs on the Micro with swap and per-container memory limits; the retry loop keeps running beside it, and if an A1 arrives the stack moves there and the Micro is terminated [D-014]. Images are built on the laptop (same architecture) and shipped [D-014]. Zero cost is enforced by a tenancy quota policy (A1 ≤ 2 OCPU / 12 GB, no other compute shapes, block storage ≤ 200 GB); budget alerts are only a second line of defence. The A1 may first be acquired at 1 OCPU / 6 GB and resized to 2/12 later [D-009]. The quota policy also blocks creating a new Micro: rebuilding the host on a fresh Micro needs the policy to allow one E2 Micro core first [D-014].
 - Repo access: private repo, read-only SSH deploy key, mounted as a Docker secret — never baked into the image or committed to any compose file.
 - Webhook security: GitHub's `X-Hub-Signature-256` HMAC verified before any pull runs; payload contents never touch a shell string directly.
-- Only the reverse proxy is publicly exposed; Postgres and the local-model container are internal-network-only.
+- Only the reverse proxy is publicly exposed; Postgres is internal-network-only [D-015].
 - Persistent named volume holds the vault clone and Postgres data; both survive container restarts.
 
 ## 12. Evaluation
@@ -137,7 +137,7 @@ Each row is expanded as an ADR in `adr/` (indexed in INDEX.md).
 | Indexing trigger | Git-diff-based incremental update on push | Full reindex every push | Scales with change size, not vault size; preserves note identity across renames instead of treating them as delete+create |
 | Async infra | Ack-fast webhook + in-process background task, single-flight lock [D-001], serialized across processes by an advisory lock [D-011] | Synchronous in-request indexing; task queue (Celery/RQ + Redis) | Synchronous breaks GitHub's 10 s delivery timeout; a queue adds a broker service for a load this project doesn't have |
 | Inference | Config-driven fallback chain, uniform local/remote provider contract | Single hardcoded provider | Resilience to any one provider's outage or rate limit, and a concrete design-pattern (Strategy/Chain-of-Responsibility) story |
-| Hosting | Oracle Cloud Always Free ARM (12GB RAM, not time-limited) | AWS free tier | AWS's post-2025 free tier is a 6-month credit allowance, not an ongoing free tier — doesn't satisfy an always-on, indefinitely-free requirement |
+| Hosting | Oracle Cloud Always Free E2.1.Micro (x86, 1 GB RAM, not time-limited) [D-014] | AWS free tier; waiting indefinitely for an Oracle A1 | AWS's post-2025 free tier is a 6-month credit allowance, not an ongoing free tier — doesn't satisfy an always-on, indefinitely-free requirement; the A1 never had capacity, and the Micro is free, exists, and holds the stack without a local model |
 | Reranking | Hop-decay + hybrid-score fusion | Cross-encoder reranker | Added model and latency cost isn't justified at this corpus size; revisit only if eval shows a real ranking problem it would fix |
 
 ## 14. Failure Modes & Edge Cases
@@ -154,18 +154,18 @@ Each row is expanded as an ADR in `adr/` (indexed in INDEX.md).
 
 - Webhook: HMAC signature required; unsigned or invalid requests rejected before any git operation.
 - Deploy key: read-only, repo-scoped, stored as a Docker secret.
-- Network: Postgres and the local-model container not exposed outside the compose network; only the reverse proxy has a public port.
+- Network: Postgres not exposed outside the compose network [D-015]; only the reverse proxy has a public port.
 - The public demo URL puts auth in scope: basic auth at the reverse proxy on every route except /webhook (HMAC-protected) and /healthz, plus app-level rate limiting on /chat and /search — otherwise anyone with the URL can read your notes and exhaust free-tier quotas [D-004].
 
 ## 16. Suggested Phasing
 
-For sprint planning, not a fixed schedule — slice further as needed. Host-dependent work (Phase 1's HTTPS, deploy key, deploy) runs whenever A1 capacity is available; later phases develop locally against Docker Compose and deploy afterwards [D-008].
+For sprint planning, not a fixed schedule — slice further as needed. Host-dependent work (Phase 1's HTTPS, deploy key, deploy) runs on the Micro once it is prepared as the host [D-014]; later phases develop locally against Docker Compose and deploy afterwards [D-008].
 
-1. Infra: Oracle host provisioned, Docker Compose skeleton, Postgres+pgvector running, deploy key working, manual clone verified.
+1. Infra: Oracle Micro prepared as the host [D-014], Docker Compose skeleton, Postgres+pgvector running, deploy key working, manual clone verified.
 2. Webhook + incremental indexing: signature verification, git-diff-based pipeline, frontmatter/chunk parsing, embeddings, upsert; eval question set written here [D-003].
 3. Graph layer: edge computation from wikilinks/tags, alias resolution, bounded per-hop traversal [D-013].
 4. Retrieval: hybrid seed search, graph expansion, per-note best-chunk selection, fused ranking, provenance assembly.
-5. Generation: provider interface, local model container, hosted provider integrations, fallback config, grounded prompt design; minimal web UI [D-004].
+5. Generation: provider interface, hosted open-weight provider integrations, optional self-hosted model in a Hugging Face Space [D-015], fallback config, grounded prompt design; minimal web UI [D-004].
 6. Evaluation + hardening: end-to-end eval run, retrieval/generation metrics, edge-case handling from section 14, security pass from section 15.
 
 ## 17. Interview Framing

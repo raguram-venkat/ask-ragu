@@ -6,7 +6,7 @@ Spec: SPEC.md §11 · ADR-0011, ADR-0007
 
 What: JSON logs with request ids, a query_log table (stage latencies, provider, fallbacks, refusal), and a timed rebuild from scratch.
 
-Approach: Drill = drop the DB volume → start → full reindex → smoke test; write the steps into handoff.md. Check a week of Oracle utilization metrics against the idle-reclamation thresholds.
+Approach: Drill on the Micro (D-014) = drop the DB volume → start → full reindex (or the laptop-built dump, if sprint-1/task_6 had to fall back to it) → smoke test; write the steps into handoff.md. Rehearse a lost-Micro rebuild on paper too: quota policy edit to allow one E2 Micro core, cloud-init, swap, restore. Check a week of Oracle utilization metrics against the idle-reclamation thresholds.
 
 Read first:
 

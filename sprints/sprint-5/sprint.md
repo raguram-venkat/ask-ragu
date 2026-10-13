@@ -1,8 +1,8 @@
 # Sprint 5 — Generation, Inference Chain & UI
 
-Goal: /chat answers from retrieved context through a config-ordered provider chain (hosted free tiers → local llama.cpp) with validated citations, shown in a minimal web UI.
+Goal: /chat answers from retrieved context through a config-ordered provider chain (hosted free tiers serving open-weight models → optional self-hosted model in a Hugging Face Space) [D-015] with validated citations, shown in a minimal web UI.
 
-Spec reference: SPEC.md §10, §15, §16 Phase 5 · D-004, D-005
+Spec reference: SPEC.md §10, §15, §16 Phase 5 · D-004, D-005, D-015
 
 Status: planned
 Started: 
@@ -13,7 +13,7 @@ Estimated effort: ~7.0 h across 5 tasks
 
 - [ ] [Task 1 — Provider contract & fallback chain](task_1_summary.md) · 90m
 - [ ] [Task 2 — OpenAI-compatible adapter + hosted providers](task_2_summary.md) · 75m
-- [ ] [Task 3 — Local llama.cpp provider + model bake-off](task_3_summary.md) · 90m
+- [ ] [Task 3 — Self-hosted small model in a private HF Space (timebox)](task_3_summary.md) · 90m — re-scoped by D-015 (was: local llama.cpp)
 - [ ] [Task 4 — Grounded prompt + citation validation](task_4_summary.md) · 75m
 - [ ] [Task 5 — /chat + minimal web UI](task_5_summary.md) · 90m
 
@@ -26,12 +26,13 @@ Estimated effort: ~7.0 h across 5 tasks
 
 ## Deviations from plan
 
-- (none yet)
+- D-015 — no local model: hosted open-weight providers, optional HF Space (Task 3 re-scoped)
 
 ## ADRs touched
 
 - ADR-0006 provider chain — accepted
 - ADR-0009 exclude training free tiers — proposed, resolve before Task 2
+- ADR-0021 hosted open-weight inference — proposed, resolve before Task 2
 
 ## Outcome
 

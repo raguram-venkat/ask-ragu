@@ -1,6 +1,6 @@
 # ADR-0007: Oracle Cloud Always Free over AWS free tier
 
-Status: accepted
+Status: accepted — the host shape changed: see ADR-0020 (E2.1.Micro, D-014). Oracle over AWS still holds.
 Date: 2026-09-28
 Sprint: sprint-0 (planning)
 

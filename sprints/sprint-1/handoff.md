@@ -2,6 +2,10 @@
 
 Interim handoff, 2026-10-03: sprint parked, not closed (D-008). Rewrite at real close.
 
+Update 2026-10-13 (D-014): no A1 after ~4,100 attempts, so the sprint is un-parked with the Micro as the host. Next: Task 3 (prepare the Micro), then 6, 5, 4 as the owner prefers. The A1 notes below stay valid for the move-back case.
+
+If an A1 ever arrives (the runner emails): run `infra/cloud-init.sh` on it (its first-boot script), clone the repo and build the image there (arm64, proved under QEMU in Sprint 2), restore a `pg_dump` or run a full index, repoint DuckDNS and the `ragu-vm` alias, then terminate the Micro with its boot volume (200 GB storage allowance). A local LLM can then come back as a new D-entry (BACKLOG).
+
 System state: Laptop — compose stack (Postgres 17 + pgvector 0.8.6, FastAPI app) healthy, migration runner working, /healthz checks DB + vector. Oracle (Hyderabad) — VCN, public subnet, internet gateway, and route are done and reusable. A temporary E2.1.Micro (x86, 1 GB) is reachable over SSH; it hosts only the A1 retry loop. No A1 yet: out of capacity.
 
 How to resume:

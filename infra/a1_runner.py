@@ -7,7 +7,8 @@ stops on an error; capacity misses only go to the log.
 
 Auth is the Micro's instance principal (no API key on disk). Compartment, availability domain,
 subnet and SSH key are read from the Micro itself, so the A1 lands next to it with the same key.
-Config (env, /etc/a1-runner.env): TOPIC_OCID, INSTANCE_NAME, BOOT_VOLUME_GB, RESIZE_HOURS.
+Config (env, /etc/a1-runner.env): TOPIC_OCID, INSTANCE_NAME, BOOT_VOLUME_GB, RESIZE_HOURS,
+RETRY_SECONDS.
 
 Exit codes: 0 done · 2 fatal (systemd won't restart; you get an email) · 1 crash (systemd restarts).
 """
@@ -84,6 +85,7 @@ def main() -> int:
 
     topic, name = os.environ["TOPIC_OCID"], os.environ["INSTANCE_NAME"]
     boot_gb, window = int(os.environ["BOOT_VOLUME_GB"]), os.environ["RESIZE_HOURS"]
+    wait_lo, wait_hi = map(int, os.environ["RETRY_SECONDS"].split("-"))
 
     if not topic.startswith("ocid1.onstopic."):
         log(f"TOPIC_OCID must be a topic OCID (ocid1.onstopic...), got {topic[:30]}...")
@@ -213,7 +215,7 @@ def main() -> int:
         except (oci.exceptions.RequestException, OSError) as e:
             log(f"network: {e}")
 
-        time.sleep(random.uniform(60, 120) + pause)
+        time.sleep(random.uniform(wait_lo, wait_hi) + pause)
 
 
 if __name__ == "__main__":

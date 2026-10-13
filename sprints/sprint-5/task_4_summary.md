@@ -15,7 +15,7 @@ Read first:
 Watch out for:
 
 - Note text is data, not instructions — clipped web sources can contain injection-looking text.
-- Small local models follow citation formats poorly — validation matters most there.
+- Small models (the HF Space one especially, D-015) follow citation formats poorly — validation matters most there.
 
 Done when: On eval v0, no unvalidated citation reaches the UI.
 

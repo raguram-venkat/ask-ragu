@@ -2,7 +2,7 @@
 
 Status: todo
 Est: 75m
-Spec: SPEC.md §11, §15 · D-004
+Spec: SPEC.md §11, §15 · D-004, D-014 (host = the Micro)
 
 What: Caddy container terminates TLS for a free DuckDNS subdomain, reverse-proxies to the app, and requires basic auth everywhere except /webhook and /healthz.
 

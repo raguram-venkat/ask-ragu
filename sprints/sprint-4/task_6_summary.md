@@ -16,7 +16,7 @@ Watch out for:
 
 - This is also your best demo artifact for the graph story: "this note came in via [[X]]".
 
-Done when: Live on the VM; used to diagnose 3 eval misses, findings noted here.
+Done when: Live on the Micro (D-014); used to diagnose 3 eval misses, findings noted here.
 
 ---
 

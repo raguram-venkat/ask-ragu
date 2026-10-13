@@ -23,17 +23,19 @@ Estimated effort: ~6.5 h across 6 tasks
 - One command prints hit@k and MRR for lexical / vector / hybrid / hybrid+graph on eval v0
 - Every returned chunk carries note title, heading_path, how it was reached (direct, or via note X and edge type), and score parts
 - The unanswerable eval questions return an empty context (relevance floor), not noise
-- p95 retrieval latency on the VM recorded (target < 300 ms, LLM excluded)
+- p95 retrieval latency on the Micro recorded (target < 300 ms, LLM excluded; needs sprint-1/task_6 done, D-014 — if the Micro misses the target, a D-entry records the measured number and the new target)
 
 ## Deviations from plan
 
-- (none yet)
+- D-014 — host is the E2.1.Micro (latency DoD and Task 6 measured there)
+- D-015 — no local model (Sprint 5 impact only)
 
 ## ADRs touched
 
 - ADR-0001 Postgres over OpenSearch — accepted
 - ADR-0008 RRF + hop decay — accepted
 - ADR-0019 lexical query from OR-ed lexemes — accepted (Task 1)
+- ADR-0020 Micro host, ADR-0021 hosted open-weight inference — proposed 2026-10-13 (D-014, D-015)
 
 ## Outcome
 

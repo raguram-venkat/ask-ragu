@@ -15,7 +15,7 @@ Read first:
 Watch out for:
 
 - Behind Caddy basic auth (D-004) — a public URL would otherwise expose your notes and burn free quotas.
-- Clear loading state: a local-model fallback can take tens of seconds.
+- Clear loading state: the HF Space fallback can cold-start for minutes (D-015).
 
 Done when: From your phone, ask a cross-note question and point at the "via" badge.
 

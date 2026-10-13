@@ -2,11 +2,11 @@
 
 Status: todo
 Est: 75m
-Spec: SPEC.md §10 · D-005, ADR-0009
+Spec: SPEC.md §10 · D-005, D-015, ADR-0009, ADR-0021
 
-What: One adapter for any OpenAI-compatible endpoint, configured for 2-3 free hosted providers.
+What: One adapter for any OpenAI-compatible endpoint, configured for 2-3 free hosted providers serving open-weight models (D-015).
 
-Approach: Groq, Cerebras, OpenRouter (free models), and GitHub Models all speak the chat-completions format — same code, different base_url/model/key.
+Approach: Groq, Cerebras, OpenRouter (free models), GitHub Models, Cloudflare Workers AI and the NVIDIA API catalog all speak the chat-completions format — same code, different base_url/model/key. Only open-weight models; no provider is local any more, so keep ≥ 2 enabled at all times.
 
 Read first:
 
@@ -22,9 +22,9 @@ Done when: Each provider answers a smoke prompt; limits + data-policy table belo
 
 ## Providers checked
 
-| Provider | Model | Free limits | Trains on data? | Checked on |
-|---|---|---|---|---|
-| | | | | |
+| Provider | Model | Open-weight? | Free limits | Trains on data? | Checked on |
+|---|---|---|---|---|---|
+| | | | | | |
 
 ---
 
