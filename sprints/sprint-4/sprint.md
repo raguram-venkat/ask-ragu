@@ -17,6 +17,7 @@ Estimated effort: ~6.5 h across 6 tasks
 - [ ] [Task 4 — Expansion, scoring & context assembly](task_4_summary.md) · 90m
 - [ ] [Task 5 — Retrieval eval harness + ablation](task_5_summary.md) · 90m
 - [ ] [Task 6 — /search debug endpoint](task_6_summary.md) · 45m
+- [ ] [Task 7 — Dev agent on open-weight models](task_7_summary.md) · 2.5h — added 2026-10-13 (tooling, ADR-0022)
 
 ## Definition of Done
 
@@ -36,6 +37,7 @@ Estimated effort: ~6.5 h across 6 tasks
 - ADR-0008 RRF + hop decay — accepted
 - ADR-0019 lexical query from OR-ed lexemes — accepted (Task 1)
 - ADR-0020 Micro host, ADR-0021 hosted open-weight inference — proposed 2026-10-13 (D-014, D-015)
+- ADR-0022 dev agents see public-repo content only — proposed (Task 7)
 
 ## Outcome
 

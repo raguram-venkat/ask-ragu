@@ -1,0 +1,37 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": ["AGENTS.local.md"],
+  "permission": {
+    "read": {
+      "*": "allow",
+      ".env": "deny",
+      "eval/*.private.*": "deny",
+      "scripts/*.private.*": "deny"
+    },
+    "external_directory": "ask",
+    "edit": "allow",
+    "bash": {
+      "*": "allow",
+      "cat .env*": "deny",
+      "git add -A*": "deny",
+      "git add .": "deny",
+      "git commit*": "ask",
+      "git push*": "ask",
+      "git reset*": "ask",
+      "git rebase*": "ask",
+      "git checkout -- *": "ask",
+      "git restore*": "ask",
+      "git clean*": "ask",
+      "ssh *": "ask",
+      "scp *": "ask",
+      "rsync *": "ask",
+      "docker compose down*": "ask",
+      "docker volume rm*": "ask",
+      "rm *": "ask",
+      "askragu graph neighbors*": "ask",
+      "*profile_vault.py*": "ask"
+    },
+    "webfetch": "ask",
+    "websearch": "ask"
+  }
+}

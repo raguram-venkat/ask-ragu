@@ -2,10 +2,16 @@
 
 One-off tools run by hand from the laptop. Not imported by the app, not run in CI.
 
-| Script | Purpose | Used in |
-|---|---|---|
-| `profile_vault.py` | Measure the vault's real shape before designing the parser and chunker | sprint-2/task_1 |
-| `bench_expansion.py` | Per-hop expansion vs one recursive CTE: latency and overlap on the real index | sprint-3/task_3, ADR-0015 |
+Output column (ADR-0022): **aggregates** = numbers or file:line only, safe for any agent to run;
+**vault text** = prints titles, tags or note text, so the owner runs it and passes back numbers only.
+
+| Script | Purpose | Output | Used in |
+|---|---|---|---|
+| `profile_vault.py` | Measure the vault's real shape before designing the parser and chunker | vault text | sprint-2/task_1 |
+| `bench_expansion.py` | Per-hop expansion vs one recursive CTE: latency and overlap on the real index | aggregates | sprint-3/task_3, ADR-0015 |
+| `scan_vault_leaks.py` | Vault titles in the diff (before a commit) or in tracked files + unpushed commits (before a push) | aggregates | ADR-0022 |
+
+The `askragu graph neighbors` and `askragu graph health` CLI commands print titles: vault text.
 
 ## bench_expansion.py
 
@@ -73,3 +79,15 @@ into git. Only aggregate numbers go into task files. Results from the last run a
 | Frontmatter presence, keys, tag style, tags per note, tag vs `domain` | What the frontmatter jsonb actually holds; whether tags behave as labels or as categories | Task 2, Task 3, ADR-0010 |
 | Distinct tags, top tag shares | A tag on too many notes is a useless graph edge (SPEC §7) | **tag cutoff** |
 | Callouts, code-block languages, Templater tags | What the cleaning step actually has to strip or unwrap | Task 3 |
+
+## scan_vault_leaks.py
+
+```bash
+uv run python scripts/scan_vault_leaks.py          # before a commit: changes vs HEAD + untracked
+uv run python scripts/scan_vault_leaks.py --push   # before a push
+```
+
+Needs the real index at `TEST_DATABASE_URL`. Prints `path:line (n matches)` and a count, never a
+title; exit 1 on any hit. Titles that are plain words found in code and docs (Docker, Python, …)
+go one per line in `scripts/scan_allow.private.txt` (gitignored, since it lists titles). Look at
+each reported line yourself: a hit can still be a false positive.

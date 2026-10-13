@@ -2,7 +2,7 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier (an E2.1.Micro, D-014).
 
-Current status: Sprint 4 (Retrieval) in progress: Task 1 done, Task 2 (vector search) next. 2026-10-13: no A1 after ~4,100 attempts, so the host is the existing E2.1.Micro (D-014) and there is no local LLM — hosted open-weight providers, optional HF Space (D-015); Sprint 1 is un-parked (Task 3: prepare the Micro). Eval v0 drafts still need the owner's rewrite before any tuning.
+Current status: Sprint 4 (Retrieval) in progress: Task 1 done, Task 2 (vector search) next; Task 7 (dev agent on open-weight models, ADR-0022) repo side done, harness + bake-off left. 2026-10-13: no A1 after ~4,100 attempts, so the host is the existing E2.1.Micro (D-014) and there is no local LLM — hosted open-weight providers, optional HF Space (D-015); Sprint 1 is un-parked (Task 3: prepare the Micro). Eval v0 drafts still need the owner's rewrite before any tuning.
 Last updated: 2026-10-13
 
 ## 30-minute reading order
@@ -49,6 +49,7 @@ Last updated: 2026-10-13
 | [0019](adr/0019-lexical-ored-lexemes-over-websearch.md) | Lexical query = question's lexemes OR-ed, not websearch_to_tsquery | accepted |
 | [0020](adr/0020-micro-host-over-waiting-for-a1.md) | Host on the existing E2.1.Micro instead of waiting for an A1 | proposed |
 | [0021](adr/0021-hosted-open-weight-inference.md) | Hosted open-weight inference; no local model; optional HF Space | proposed |
+| [0022](adr/0022-dev-agents-public-repo-only.md) | Dev agents on open-weight models see public-repo content only | proposed |
 
 Proposed = came out of planning research; review and accept (or supersede) before the dependent task starts.
 
@@ -64,7 +65,7 @@ Full log in [DEVIATIONS.md](DEVIATIONS.md). Most recent 3:
 
 - [SPEC.md](SPEC.md) — living source of truth
 - [BACKLOG.md](BACKLOG.md) — ideas, debt, bugs noticed but not scheduled
-- [AGENTS.md](AGENTS.md) — briefing for any engineer or AI agent taking over
+- [AGENTS.md](AGENTS.md) — briefing for any engineer or AI agent taking over: the whole working agreement (rewritten 2026-10-13 for open-model agents)
 
 ---
 

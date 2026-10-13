@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./.env)",
+      "Read(./eval/*.private.*)",
+      "Read(./scripts/*.private.*)",
+      "Bash(cat .env:*)",
+      "Bash(git add -A:*)",
+      "Bash(git add .)"
+    ],
+    "ask": [
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git reset:*)",
+      "Bash(git rebase:*)",
+      "Bash(git restore:*)",
+      "Bash(git clean:*)",
+      "Bash(ssh:*)",
+      "Bash(scp:*)",
+      "Bash(rsync:*)",
+      "Bash(docker compose down:*)",
+      "Bash(docker volume rm:*)",
+      "Bash(rm:*)",
+      "Bash(askragu graph neighbors:*)",
+      "WebFetch",
+      "WebSearch"
+    ]
+  }
+}

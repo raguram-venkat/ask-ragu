@@ -8,3 +8,9 @@ models/
 
 # Eval questions about the real vault (SPEC §12): private, never committed.
 eval/*.private.*
+
+# Generic-word vault titles the leak scan skips (ADR-0022): titles, so private.
+scripts/*.private.*
+
+# Private notes for agents (vault path etc.), read via AGENTS.md; never committed.
+AGENTS.local.md
