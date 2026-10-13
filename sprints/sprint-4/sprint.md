@@ -4,14 +4,14 @@ Goal: A question returns a ranked, provenance-tagged context — lexical + vecto
 
 Spec reference: SPEC.md §9, §12, §16 Phase 4 · D-006, D-007
 
-Status: planned
-Started: 
+Status: in progress
+Started: 2026-10-10
 Closed: 
 Estimated effort: ~6.5 h across 6 tasks
 
 ## Tasks
 
-- [ ] [Task 1 — Lexical search](task_1_summary.md) · 60m
+- [x] [Task 1 — Lexical search](task_1_summary.md) · 60m
 - [ ] [Task 2 — Vector search](task_2_summary.md) · 45m
 - [ ] [Task 3 — RRF fusion + relevance floor](task_3_summary.md) · 60m
 - [ ] [Task 4 — Expansion, scoring & context assembly](task_4_summary.md) · 90m
@@ -33,6 +33,7 @@ Estimated effort: ~6.5 h across 6 tasks
 
 - ADR-0001 Postgres over OpenSearch — accepted
 - ADR-0008 RRF + hop decay — accepted
+- ADR-0019 lexical query from OR-ed lexemes — accepted (Task 1)
 
 ## Outcome
 

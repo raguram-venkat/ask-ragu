@@ -45,5 +45,8 @@ class Settings(BaseSettings):
     graph_fanout_cap: int
     graph_total_cap: int
 
+    # Retrieval (query time); see .env.example.
+    retrieval_candidates: int
+
 
 settings = Settings()
