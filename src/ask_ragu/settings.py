@@ -47,6 +47,7 @@ class Settings(BaseSettings):
 
     # Retrieval (query time); see .env.example.
     retrieval_candidates: int
+    retrieval_relevance_floor: float
 
 
 settings = Settings()
