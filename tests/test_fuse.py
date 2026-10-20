@@ -4,7 +4,7 @@ from uuid import uuid4
 
 import pytest
 
-from ask_ragu.retrieval.fuse import TOP_K, reciprocal_rank_fusion
+from ask_ragu.retrieval.fuse import reciprocal_rank_fusion
 from ask_ragu.settings import settings
 
 NOTE = uuid4()
@@ -16,12 +16,14 @@ def _result(ids: list[int], base: float = 1.0):
 
 
 @pytest.fixture
-def search_floor_zero(monkeypatch):
-    """Disable the relevance floor so RRF math tests aren't refuted by it."""
+def rrf_config(monkeypatch):
+    """Pin RRF k=60, seed_top_k=8, and floor=0 so tests get deterministic RRF math."""
     monkeypatch.setattr(settings, "retrieval_relevance_floor", -1.0)
+    monkeypatch.setattr(settings, "retrieval_rrf_k", 60)
+    monkeypatch.setattr(settings, "retrieval_seed_top_k", 8)
 
 
-def test_rrf_puts_overlap_above_single_list(search_floor_zero):
+def test_rrf_puts_overlap_above_single_list(rrf_config):
     # chunk 3 appears in both lists → 1/60 + 1/62; chunk 1 only lexical → 1/60.
     lexical = _result([1, 2, 3])
     vector = _result([3, 4, 5])
@@ -34,7 +36,7 @@ def test_rrf_puts_overlap_above_single_list(search_floor_zero):
     ]
 
 
-def test_rrf_is_rank_based_not_score_based(search_floor_zero):
+def test_rrf_is_rank_based_not_score_based(rrf_config):
     # Even though lexical gives chunk 2 a higher raw score than chunk 1,
     # RRF ranks by position: chunk 1 (rank 0) beats chunk 2 (rank 1).
     lexical = [(1, NOTE, 5.0), (2, NOTE, 99.0)]
@@ -49,11 +51,11 @@ def test_rrf_is_rank_based_not_score_based(search_floor_zero):
     ]
 
 
-def test_top_k_cap(search_floor_zero):
-    # More than TOP_K distinct chunks → trimmed to TOP_K, best first.
+def test_top_k_cap(rrf_config):
+    # More than retrieval_seed_top_k distinct chunks → trimmed to retrieval_seed_top_k, best first.
     lexical = _result(list(range(1, 15)))
     fused = reciprocal_rank_fusion(lexical, [])
-    assert len(fused) == TOP_K
+    assert len(fused) == settings.retrieval_seed_top_k
     assert fused[0][0] == 1  # best (rank 0) survives the cap
 
 

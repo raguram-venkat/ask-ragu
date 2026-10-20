@@ -2,7 +2,7 @@
 
 Single entry point. Graph-aware RAG over a private Obsidian vault, self-hosted for $0 on Oracle Cloud's Always Free tier (an E2.1.Micro, D-014).
 
-Current status: Sprint 4 (Retrieval) in progress: Task 1 done, Task 2 (vector search) next; Task 7 (dev agent on open-weight models, ADR-0022) repo side done, harness + bake-off left. 2026-10-13: no A1 after ~4,100 attempts, so the host is the existing E2.1.Micro (D-014) and there is no local LLM — hosted open-weight providers, optional HF Space (D-015); Sprint 1 is un-parked (Task 3: prepare the Micro). Eval v0 drafts still need the owner's rewrite before any tuning.
+Current status: Sprint 4 (Retrieval) in progress: Task 1 done, Task 2 (vector search) next; Task 7 (dev agent on open-weight models, ADR-0022) repo side done, harness + bake-off left. 2026-10-20: ADR-0023 moves retrieval meta-variables (RRF k, seed top-k, expanded budget share, chars/token) from code constants to `.env`. Eval v0 drafts still need the owner's rewrite before any tuning.
 Last updated: 2026-10-13
 
 ## 30-minute reading order
@@ -50,6 +50,7 @@ Last updated: 2026-10-13
 | [0020](adr/0020-micro-host-over-waiting-for-a1.md) | Host on the existing E2.1.Micro instead of waiting for an A1 | proposed |
 | [0021](adr/0021-hosted-open-weight-inference.md) | Hosted open-weight inference; no local model; optional HF Space | proposed |
 | [0022](adr/0022-dev-agents-public-repo-only.md) | Dev agents on open-weight models see public-repo content only | proposed |
+| [0023](adr/0023-retrieval-meta-vars-are-config.md) | Retrieval meta-variables (RRF k, seed count, budget share, chars/token) are config in `.env`, not code constants | accepted |
 
 Proposed = came out of planning research; review and accept (or supersede) before the dependent task starts.
 

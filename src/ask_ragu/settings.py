@@ -48,6 +48,12 @@ class Settings(BaseSettings):
     # Retrieval (query time); see .env.example.
     retrieval_candidates: int
     retrieval_relevance_floor: float
+    retrieval_hop_decay_hop1: float
+    retrieval_hop_decay_hop2: float
+    retrieval_rrf_k: int
+    retrieval_seed_top_k: int
+    retrieval_expanded_budget_share: float
+    retrieval_chars_per_token: int
 
 
 settings = Settings()
