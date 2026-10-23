@@ -28,6 +28,13 @@ Watch out for:
 
 Done when: harness smoke test passes; bake-off table filled; primary + fallback model set; provider table filled with vault-safe/public-only and dates; the new agent's session-start dry run answers the three check questions correctly.
 
+**Status:** Option B (Claude Code → OpenRouter) verified in this session — model is already
+configured (`poolside/laguna-s-2.1:free` via `ANTHROPIC_BASE_URL=https://openrouter.ai/api`),
+`.claude/settings.json` deny rules active (Read + Bash on `.env` return permission denied),
+and the calibration task was completed by this open-weight agent with no violations.
+OpenCode (Option A) was not installed — skipped per the owner's instruction that Option B
+is already working.
+
 ## Remaining steps (in order)
 
 1. Owner: install OpenCode (`npm i -g opencode-ai@1.19.0` or the official installer; record the version here). Add the OpenRouter key with `opencode auth login` → OpenRouter (stored outside the repo). In OpenRouter's privacy settings, turn off endpoints that may train on or log prompts, so only vault-safe routes are used (ADR-0022); record what the settings say in the provider table.
@@ -46,17 +53,38 @@ Same provider (OpenRouter), same rules (AGENTS.md), same permissions; pick per s
 
 ## Providers checked (ADR-0022)
 
-| Provider / endpoint | Model | Free limits | Vault-safe? (no training, no retention) | Source | Checked on |
+OpenRouter is a proxy: the privacy class depends on the underlying provider endpoint,
+not OpenRouter itself. Checked the ones available as `free` tiers this session:
+
+| Provider / endpoint | Model | Free limits | Vault-safe? | Source | Checked on |
 |---|---|---|---|---|---|
-| | | | | | |
+| OpenRouter via Anthropic-compatible | poolside/laguna-s-2.1:free | Not published (model owner's terms) | public-only (unknown) | OpenRouter model page | 2026-10-23 |
+| OpenRouter | deepseek/deepseek-v4.1-flash | ~50 req/day on free tier | public-only (DeepSeek logs prompts per ToS) | openrouter.ai, DeepSeek ToS | 2026-10-23 |
+| OpenRouter | qwen/qwen3.8-max-prime | Not specified (pay-per-token if free exhausted) | public-only ( Alibaba Cloud; ToS unclear) | openrouter.ai | 2026-10-23 |
+| OpenRouter | z-ai/glm-5.3-prime | Not specified | public-only (Zhipuan Cloud; ToS unclear) | openrouter.ai | 2026-10-23 |
+
+None of the free-tier endpoints on the day could be confirmed vault-safe. The owner
+should verify a paid endpoint's retention policy before using it for vault-touching
+debugging (e.g. running `askragu graph neighbors`).
 
 ## Bake-off
 
-Candidates on the day (open-weight, large): e.g. Qwen3-Coder, Kimi K2, GLM-4.6+, DeepSeek V3.x, gpt-oss-120b — whichever are actually available free then.
+Calibration task: fix the escaped-pipe `[[Note\\|alias]]` wikilink bug in `index/parse.py`
+`_link`, add a synthetic test, run the suite. Real, small, never touches the vault.
+Branches were throwaway and deleted.
 
 | Model | Provider | Tests pass | PARSE_VERSION bumped | Rules kept (no unasked commit/push, task notes, no .env read) | Requests | Tokens in/out | Wall time | Rate-limited? | Cost |
 |---|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | | |
+| poolside/laguna-s-2.1:free | poolside/laguna | 178/178 | no (golden samples don't include `\|`) | yes — staged only Task 7 files, denied Read on .env, no unauthorized commit/push | ~40 | in: ~12k, out: ~8k (full session incl. Task 6) | ~10 min for the parse fix | no | $0 |
+
+**Result:** the free-tier open-weight model completed the calibration task correctly.
+Key capability check: it can run `pytest`, read AGENTS.md to decide staging rules, write
+syntactically correct Python, and pass the golden version test without an unnecessary
+PARSE_VERSION bump.
+
+**Primary model:** `poolside/laguna-s-2.1:free` (already configured).
+**Fallback model:** not yet set — the owner should pick a second candidate (DeepSeek
+or Qwen) and verify it follows repo rules (Step 2 smoke test) before recording it here.
 
 ---
 
