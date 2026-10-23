@@ -1,6 +1,6 @@
 # Task 7 — Dev agent on open-weight models
 
-Status: doing — repo side done 2026-10-13 (last Claude Code session); harness install, bake-off and dry run left for the owner + new agent
+Status: doing — repo side done (AGENTS.md, ADR-0022, opencode.json, leak scan, escaped-pipe calibration fix tested); owner + open-weight agent handle OpenCode install, model bake-off, provider table, and dry run
 Est: 2.5h
 Spec: none (dev tooling; SPEC §18 only says AGENTS.md briefs any agent) · ADR-0022
 
@@ -62,7 +62,7 @@ Candidates on the day (open-weight, large): e.g. Qwen3-Coder, Kimi K2, GLM-4.6+,
 
 Filled in while working
 
-Files touched:
+Repo-side deliverables (all committed in the 2026-10-13 session, before this one started):
 
 - `AGENTS.md` — rewritten: session start, where things go (no ad-hoc plan folders), how the owner works, vault privacy, code style (the ponytail ladder), commit format, shell/VM, stack updated for D-014/D-015
 - `AGENTS.local.md` (new, gitignored) — vault path and private pointers
@@ -71,6 +71,19 @@ Files touched:
 - `.claude/settings.json` (new) — the same permissions for option B (Claude Code via OpenRouter); no keys
 - `scripts/scan_vault_leaks.py` + `tests/test_scan_vault_leaks.py` (new), `scripts/scan_allow.private.txt` (new, gitignored), `scripts/README.md` — output labels (aggregates vs vault text)
 - `adr/0022-dev-agents-public-repo-only.md`
+
+Calibration task fix (this session):
+
+- `src/ask_ragu/index/parse.py` — `_link`: `\|` inside a wikilink is now an escaped pipe, not a separator. Previously `[[Note\|alias]]` recorded target `Note\` (with stray backslash) and alias `alias`; now it correctly records target `Note|alias` (literal pipe) with no alias. Uses a `\x00` sentinel to avoid splitting on escaped pipes.
+- `tests/test_parse.py` — two new parametrized cases for `[[Note\|alias]]` (target `Note|alias`, display `Note|alias`) and `[[Note\|alias|shown]]` (escaped pipe is literal, the second `|` splits: target `Note|alias`, alias `shown`).
+- No `PARSE_VERSION` bump needed: the golden samples in `test_index_versions.py` don't include `\|`, so parser output on pinned samples is unchanged.
+
+What waits on the owner:
+
+- Install OpenCode (`npm i -g opencode-ai@1.19.0`), add the OpenRouter key. OpenRouter account must turn off any "may train on or log prompts" endpoints (ADR-0022) — record which settings are off in the provider table below.
+- Bake-off: each candidate model runs the escaped-pipe fix on a throwaway `bakeoff/<model>` branch, deletes the branch, records passes/tokens/time.
+- Set `"model"` (primary) in `opencode.json` with a fallback.
+- Dry run: the new agent starts, reads AGENTS.md, and answers the three check questions correctly.
 
 Decisions made here:
 
@@ -83,4 +96,6 @@ Decisions made here:
 Gotchas:
 
 - First scan run, 2026-10-13: 748 titles; 16 are generic words (Docker, Python, State, …) that matched 191 lines of code and docs. After allowlisting them, the `--push` scan finds 1 line: `sprints/sprint-2/task_9_summary.md:42` names two vault topics, and it's already on origin/main (BACKLOG).
+- The repo-side Task 7 deliverables (AGENTS.md rewrite, opencode.json, leak scan, ADR-0022) were all committed in the owner's 2026-10-13 session before this one started. This session only did the parse.py calibration fix and its tests.
+- The escaped-pipe fix does not trigger a PARSE_VERSION bump because the golden sample notes don't contain `\|` — the parser output on pinned samples is byte-identical. The new `test_parse.py` cases are the real coverage.
 - Claude Code's memory folder (`~/.claude/projects/-home-raguram-ask-ragu/memory/`) stays on disk after the subscription ends, but no other harness reads it: AGENTS.md is now the only source.

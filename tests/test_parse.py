@@ -79,6 +79,9 @@ def test_no_frontmatter_and_unclosed_dashes():
         ("![alt](Attachments/x.png)", [], ""),
         ("[[#Local heading]]", [], "Local heading"),
         ("[[A]] and [[A|again]]", [("A", "link")], "A and again"),
+        # \\| is an escaped pipe: literal, not a separator.
+        ("[[Note\\|alias]]", [("Note|alias", "link")], "Note|alias"),
+        ("[[Note\\|alias|shown]]", [("Note|alias", "link")], "shown"),
     ],
 )
 def test_link_variants(md, links, text):

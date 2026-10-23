@@ -132,9 +132,16 @@ def _clean_text(text: str, links: dict, tags: dict) -> str:
 
 
 def _link(m: re.Match, links: dict) -> str:
-    """Record the link; return its display text so the body reads like prose."""
+    """Record the link; return its display text so the body reads like prose.
+
+    `\\|` inside a wikilink is an escaped pipe in Obsidian — must not split
+    the target/alias. We swap it for a sentinel before partitioning, then restore.
+    """
     embed, inner = m.group(1), m.group(2)
+    inner = inner.replace("\\|", "\x00")
     target, _, alias = inner.partition("|")
+    target = target.replace("\x00", "|")
+    alias = alias.replace("\x00", "|")
     note, _, heading = target.partition("#")
     note = note.strip()
     if embed and PurePosixPath(note).suffix.lower() not in ("", ".md"):
