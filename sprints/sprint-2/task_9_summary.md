@@ -39,7 +39,7 @@ Decisions made here:
 - The checker reads the vault through the indexer's own code (`git ls-tree`, `read_blobs`, `parse_note`, `is_indexable`), so "gold path exists" means "exists and is indexable at the committed state", the same view retrieval will have.
 - Loader lives in `src/ask_ragu/evalset.py` (not `scripts/`) because Sprint 4 Task 5's harness loads the same file.
 - Drafts: Claude drafted 18 candidates from the MOCs and the actual link graph (6 single, 7 hop, 3 overview, 2 unanswerable), all marked `origin: draft`; the checker warns until each is rewritten in the owner's words or replaced. D-003's point is that the questions are the owner's and fixed before retrieval tuning (Sprint 4), so the rewrite must happen before Sprint 4 starts.
-- Unanswerable questions are adjacent-but-absent topics (quantum error correction next to physics; Black-Scholes next to game theory), verified absent from every chunk on 2026-10-06. They test refusal better than random trivia, which a model is tempted to answer from its own knowledge.
+- Unanswerable questions are adjacent-but-absent topics (<Topic A> next to <Topic B>; <Topic C> next to <Topic D>), verified absent from every chunk on 2026-10-06. They test refusal better than random trivia, which a model is tempted to answer from its own knowledge.
 
 Gotchas:
 
