@@ -12,10 +12,10 @@ Estimated effort: ~6.5 h across 6 tasks
 ## Tasks
 
 - [x] [Task 1 — Lexical search](task_1_summary.md) · 60m
-- [ ] [Task 2 — Vector search](task_2_summary.md) · 45m
-- [ ] [Task 3 — RRF fusion + relevance floor](task_3_summary.md) · 60m
-- [ ] [Task 4 — Expansion, scoring & context assembly](task_4_summary.md) · 90m
-- [ ] [Task 5 — Retrieval eval harness + ablation](task_5_summary.md) · 90m
+- [x] [Task 2 — Vector search](task_2_summary.md) · 45m
+- [x] [Task 3 — RRF fusion + relevance floor](task_3_summary.md) · 60m
+- [x] [Task 4 — Expansion, scoring & context assembly](task_4_summary.md) · 90m
+- [x] [Task 5 — Retrieval eval harness + ablation](task_5_summary.md) · 90m
 - [ ] [Task 6 — /search debug endpoint](task_6_summary.md) · 45m
 - [ ] [Task 7 — Dev agent on open-weight models](task_7_summary.md) · 2.5h — added 2026-10-13 (tooling, ADR-0022)
 

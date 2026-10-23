@@ -86,6 +86,7 @@ def assemble_context(
     fused_seeds: list[tuple[int, UUID, float]],
     query_vector: list[float],
     token_budget: int,
+    with_graph: bool = True,
 ) -> list[ContextChunk]:
     """Steps 3-7 of SPEC §9: expand seeds, best-chunk, score, dedupe, pack.
 
@@ -94,56 +95,63 @@ def assemble_context(
         fused_seeds: (chunk_id, note_id, rrf_score) from Task 3's reciprocal_rank_fusion.
         query_vector: embed_query(question), for finding each expanded note's best chunk.
         token_budget: max tokens for the assembled context (per-provider in Sprint 5).
+        with_graph: when False, skip graph expansion and pack only the seed chunks
+            (used by the Task 5 eval harness to measure the ablation without expansion).
     """
     if not fused_seeds:
         return []
 
     seed_note_ids = list({nid for _, nid, _ in fused_seeds})
 
-    # Step 4: graph expansion from seed notes.
-    reached = graph_expand(conn, seed_note_ids)
-    expanded = [r for r in reached if not r.is_moc]
-    expanded_ids = [r.note_id for r in expanded]
+    if with_graph:
+        # Step 4: graph expansion from seed notes.
+        reached = graph_expand(conn, seed_note_ids)
+        expanded = [r for r in reached if not r.is_moc]
+        expanded_ids = [r.note_id for r in expanded]
 
-    # Fetch every note title we need for provenance (seeds, from_notes, via_notes, expanded).
-    title_ids: set[UUID] = set(seed_note_ids) | {r.note_id for r in expanded}
-    title_ids |= {r.from_note for r in expanded}
-    title_ids |= {r.via_note for r in expanded if r.via_note}
-    titles = (
-        {r[0]: r[1] for r in conn.execute(NOTE_TITLES, {"ids": list(title_ids)}).fetchall()}
-        if title_ids
-        else {}
-    )
-
-    # Step 5: best chunk per expanded note (by cosine to the query vector).
-    best_chunks = conn.execute(
-        BEST_CHUNK_PER_NOTE,
-        {"q": str(query_vector), "note_ids": expanded_ids},
-    ).fetchall()
-
-    hop_map = {r.note_id: r for r in expanded}
-
-    # Step 6: score expanded chunks — cosine × hop_decay × note_type_prior.
-    expanded_chunks: list[ContextChunk] = []
-    for chunk_id, note_id, title, note_type, hp, content, cosine in best_chunks:
-        r = hop_map[note_id]
-        decay = (
-            settings.retrieval_hop_decay_hop1 if r.hop == 1 else settings.retrieval_hop_decay_hop2
+        # Fetch every note title we need for provenance (seeds, from_notes, via_notes, expanded).
+        title_ids: set[UUID] = set(seed_note_ids) | {r.note_id for r in expanded}
+        title_ids |= {r.from_note for r in expanded}
+        title_ids |= {r.via_note for r in expanded if r.via_note}
+        titles = (
+            {r[0]: r[1] for r in conn.execute(NOTE_TITLES, {"ids": list(title_ids)}).fetchall()}
+            if title_ids
+            else {}
         )
-        prior = NOTE_TYPE_PRIOR.get(note_type, DEFAULT_PRIOR)
-        expanded_chunks.append(
-            ContextChunk(
-                chunk_id,
-                note_id,
-                title,
-                hp,
-                content,
-                cosine * decay * prior,
-                _provenance(r, titles),
-                "expanded",
+
+        # Step 5: best chunk per expanded note (by cosine to the query vector).
+        best_chunks = conn.execute(
+            BEST_CHUNK_PER_NOTE,
+            {"q": str(query_vector), "note_ids": expanded_ids},
+        ).fetchall()
+
+        hop_map = {r.note_id: r for r in expanded}
+
+        # Step 6: score expanded chunks — cosine × hop_decay × note_type_prior.
+        expanded_chunks: list[ContextChunk] = []
+        for chunk_id, note_id, title, note_type, hp, content, cosine in best_chunks:
+            r = hop_map[note_id]
+            decay = (
+                settings.retrieval_hop_decay_hop1
+                if r.hop == 1
+                else settings.retrieval_hop_decay_hop2
             )
-        )
-    expanded_chunks.sort(key=lambda c: (-c.score, c.chunk_id))
+            prior = NOTE_TYPE_PRIOR.get(note_type, DEFAULT_PRIOR)
+            expanded_chunks.append(
+                ContextChunk(
+                    chunk_id,
+                    note_id,
+                    title,
+                    hp,
+                    content,
+                    cosine * decay * prior,
+                    _provenance(r, titles),
+                    "expanded",
+                )
+            )
+        expanded_chunks.sort(key=lambda c: (-c.score, c.chunk_id))
+    else:
+        expanded_chunks = []
 
     # Seed chunks keep their RRF scores (ranked already by Task 3).
     seed_ids = [cid for cid, _, _ in fused_seeds]
