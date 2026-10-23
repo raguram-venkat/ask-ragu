@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from ask_ragu import db
-from ask_ragu.api import chat, health, status, webhook
+from ask_ragu.api import chat, health, search, status, webhook
 from ask_ragu.index.sync import runner
 
 # uvicorn only configures its own loggers; this makes ask_ragu.* (e.g. background sync) visible.
@@ -24,4 +24,5 @@ app = FastAPI(title="ask-ragu", lifespan=lifespan)
 app.include_router(health.router)
 app.include_router(webhook.router)
 app.include_router(chat.router)
+app.include_router(search.router)
 app.include_router(status.router)
